@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp-gateway
+    steps:
+      - name: Checkout gateway
+        uses: actions/checkout@v5
+        with:
+          path: mcp-gateway
+
+      - name: Checkout execution engine
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/mcp-execution-engine
+          path: mcp-execution-engine
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp-gateway/package-lock.json
+
+      - name: Install and build execution engine
+        working-directory: mcp-execution-engine
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install gateway dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Lint and format
+        run: npm run lf:ci
+
+      - name: Build
+        run: npm run build

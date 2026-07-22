@@ -1,0 +1,53 @@
+{
+  "name": "@feelyourprotocol/mcp-gateway",
+  "version": "0.1.0",
+  "description": "MCP server gateway for Feel Your Protocol — exposes the execution engine to AI agents",
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "bin": {
+    "fyp-mcp": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && vitest",
+    "test:ci": "npm run build && vitest run",
+    "lint": "eslint . --fix",
+    "format": "prettier --write src/",
+    "lf": "npm run format && npm run lint",
+    "lf:ci": "eslint . && prettier -c src/",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@feelyourprotocol/mcp-execution-engine": "file:../mcp-execution-engine",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@tsconfig/node22": "^22.0.2",
+    "@types/node": "^22.16.5",
+    "@vitest/eslint-plugin": "^1.3.4",
+    "eslint": "^9.31.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jiti": "^2.4.2",
+    "prettier": "3.6.2",
+    "typescript": "~5.8.0",
+    "typescript-eslint": "^8.38.0",
+    "vitest": "^3.2.4"
+  },
+  "license": "MIT"
+}
