@@ -10,7 +10,11 @@ import {
   TOOL_DESCRIBE_CAPABILITIES,
   TOOL_SIMULATE_EVM_BYTECODE,
 } from "../server/constants.js";
-import { extractTextContent, readEngineLabInput } from "./helpers.js";
+import {
+  EXCHANGE_AMSTERDAM_BYTECODE,
+  extractTextContent,
+  readEngineLabInput,
+} from "./helpers.js";
 
 const gatewayRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -136,6 +140,83 @@ describe("MCP gateway (stdio integration)", () => {
 
     expect(result.isError).toBe(true);
     expect(extractTextContent(result)).toMatch(/bytecode/i);
+  });
+
+  it("simulates EIP-8024 EXCHANGE under amsterdam with trace", async () => {
+    client = await connectClient();
+    const result = await client.callTool(
+      {
+        name: TOOL_SIMULATE_EVM_BYTECODE,
+        arguments: {
+          bytecode: EXCHANGE_AMSTERDAM_BYTECODE,
+          fork: { baseHardfork: "amsterdam", eips: [] },
+          trace: true,
+        },
+      },
+      CallToolResultSchema,
+    );
+
+    expect(result.isError).not.toBe(true);
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean;
+      gasUsed: string;
+      finalStack: string[];
+      provenance: { forkConfig: { baseHardfork: string } };
+      steps?: { op: string }[];
+    };
+
+    expect(payload.success).toBe(true);
+    expect(BigInt(payload.gasUsed)).toBeGreaterThan(0n);
+    expect(payload.provenance.forkConfig.baseHardfork).toBe("amsterdam");
+    expect(payload.finalStack).toHaveLength(4);
+    expect(new Set(payload.finalStack)).toEqual(
+      new Set(["0x1", "0x2", "0x3", "0x4"]),
+    );
+    expect(payload.steps?.some((step) => step.op === "EXCHANGE")).toBe(true);
+  });
+
+  it("returns MCP error for unsupported hardfork via engine", async () => {
+    client = await connectClient();
+    const result = await client.callTool(
+      {
+        name: TOOL_SIMULATE_EVM_BYTECODE,
+        arguments: {
+          bytecode: "0x600100",
+          fork: { baseHardfork: "not-a-real-fork", eips: [] },
+        },
+      },
+      CallToolResultSchema,
+    );
+
+    expect(result.isError).toBe(true);
+    expect(extractTextContent(result)).toMatch(/unsupported_hardfork/i);
+  });
+
+  it("returns execution failure in payload for shallow DUPN stack underflow", async () => {
+    client = await connectClient();
+    const result = await client.callTool(
+      {
+        name: TOOL_SIMULATE_EVM_BYTECODE,
+        arguments: {
+          bytecode: "0x600160026003e68000",
+          fork: { baseHardfork: "amsterdam", eips: [] },
+        },
+      },
+      CallToolResultSchema,
+    );
+
+    expect(result.isError).not.toBe(true);
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean;
+      error: string | null;
+      provenance: { engineVersion: string };
+    };
+
+    expect(payload.success).toBe(false);
+    expect(payload.error).toMatch(/stack/i);
+    expect(payload.provenance.engineVersion).toBe("0.1.0");
   });
 });
 

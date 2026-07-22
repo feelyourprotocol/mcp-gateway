@@ -49,5 +49,13 @@
     "typescript-eslint": "^8.38.0",
     "vitest": "^3.2.4"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/feelyourprotocol/mcp-gateway.git"
+  },
+  "homepage": "https://mcp-docs.feelyourprotocol.org/use/connect.html",
+  "bugs": {
+    "url": "https://github.com/feelyourprotocol/mcp-gateway/issues"
+  }
 }

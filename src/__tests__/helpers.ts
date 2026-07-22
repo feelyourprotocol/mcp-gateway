@@ -24,6 +24,9 @@ export function readEngineLabInput(
   return JSON.parse(fs.readFileSync(filePath, "utf8")) as SimulateBytecodeInput;
 }
 
+/** EIP-8024 EXCHANGE demo: stack [1,2,3,4] → EXCHANGE(2,3) → [1,4,3,2] */
+export const EXCHANGE_AMSTERDAM_BYTECODE = "0x6001600260036004e88e00";
+
 export function extractTextContent(result: unknown): string {
   if (typeof result !== "object" || result === null || !("content" in result)) {
     throw new Error("Expected tool result with content");

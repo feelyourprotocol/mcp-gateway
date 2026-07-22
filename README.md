@@ -1,6 +1,10 @@
 # mcp-gateway
 
+[![CI](https://github.com/feelyourprotocol/mcp-gateway/actions/workflows/ci.yml/badge.svg)](https://github.com/feelyourprotocol/mcp-gateway/actions/workflows/ci.yml)
+
 MCP server gateway for [Feel Your Protocol](https://feelyourprotocol.org) — exposes the [`mcp-execution-engine`](https://github.com/feelyourprotocol/mcp-execution-engine) to AI agents over stdio (local) and HTTP (later).
+
+**Repo:** [github.com/feelyourprotocol/mcp-gateway](https://github.com/feelyourprotocol/mcp-gateway) · **Release:** v0.1.0 (stdio, local agents)
 
 ## Architecture
 
@@ -27,14 +31,21 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 
 ## Local development
 
+Clone the execution engine as a **sibling directory** (required — gateway depends on `file:../mcp-execution-engine`):
+
 ```bash
-# From feelyourprotocol/mcp-execution-engine
+git clone https://github.com/feelyourprotocol/mcp-execution-engine.git
+git clone https://github.com/feelyourprotocol/mcp-gateway.git
+```
+
+```bash
+# From mcp-execution-engine
 npm ci && npm run build
 
-# From feelyourprotocol/mcp-gateway
+# From mcp-gateway
 npm ci
-npm run test:ci    # build + vitest
-npm start          # stdio MCP server (for agent config)
+npm run test:ci    # build + vitest (30 tests)
+npm run build && npm start   # stdio MCP server (for agent config)
 ```
 
 ### Cursor / Claude Desktop
@@ -61,6 +72,13 @@ On startup the server logs to **stderr** (visible in MCP logs):
 ```
 
 If you only see `describe_capabilities` in that line, the running binary is stale.
+
+## JSON schemas
+
+Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feelyourprotocol.org)):
+
+- [`schemas/describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
+- [`schemas/simulate_evm_bytecode.input.json`](./schemas/simulate_evm_bytecode.input.json)
 
 ## License
 

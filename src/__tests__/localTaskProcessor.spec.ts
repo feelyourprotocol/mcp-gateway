@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import {
+  ENGINE_CEILINGS,
+  EngineError,
+} from "@feelyourprotocol/mcp-execution-engine";
 
 import { LocalTaskProcessor } from "../engine/LocalTaskProcessor.js";
 import { readEngineLabInput } from "./helpers.js";
@@ -52,5 +56,28 @@ describe("LocalTaskProcessor", () => {
     expect(result.success).toBe(true);
     expect(result.finalStack.slice(0, 3)).toEqual(["0x1", "0x11", "0x10"]);
     expect(result.steps?.some((step) => step.op === "DUPN")).toBe(true);
+  });
+
+  it("simulate propagates EngineError for bytecode above size ceiling", async () => {
+    const huge = "0x" + "00".repeat(ENGINE_CEILINGS.maxBytecodeBytes + 1);
+
+    await expect(
+      processor.submit({
+        kind: "simulate",
+        payload: { bytecode: huge, fork: { baseHardfork: "amsterdam" } },
+      }),
+    ).rejects.toThrow(EngineError);
+  });
+
+  it("simulate propagates EngineError for unsupported hardfork", async () => {
+    await expect(
+      processor.submit({
+        kind: "simulate",
+        payload: {
+          bytecode: "0x600100",
+          fork: { baseHardfork: "not-a-real-fork", eips: [] },
+        },
+      }),
+    ).rejects.toThrow(EngineError);
   });
 });
