@@ -1,3 +1,4 @@
+import { ZodError } from "zod";
 import { EngineError } from "@feelyourprotocol/mcp-execution-engine";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
@@ -26,6 +27,13 @@ export function toolError(message: string, code?: string): CallToolResult {
 }
 
 export function toMcpToolError(error: unknown): CallToolResult {
+  if (error instanceof ZodError) {
+    return toolError(
+      error.errors.map((issue) => issue.message).join("; "),
+      "invalid_input",
+    );
+  }
+
   if (error instanceof EngineError) {
     return toolError(error.message, error.code);
   }

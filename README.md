@@ -23,7 +23,7 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | MCP tool | Shape | Status |
 | --- | --- | --- |
 | `describe_capabilities` | probe | Shipped (stdio) |
-| `simulate_evm_bytecode` | simulate | Planned (Step 3D) |
+| `simulate_evm_bytecode` | simulate | Shipped (stdio) |
 
 ## Local development
 
@@ -51,6 +51,16 @@ npm start          # stdio MCP server (for agent config)
 ```
 
 Build first (`npm run build`). Use an absolute path to `dist/index.js`.
+
+**After pulling or changing gateway code:** run `npm run build` again, then **restart** the MCP server in Cursor (Settings → MCP → restart `feel-your-protocol`, or reload the window). Cursor caches the tool list from the running process — it will not pick up new tools until restart.
+
+On startup the server logs to **stderr** (visible in MCP logs):
+
+```
+[fyp-mcp] FeelYourProtocol-EVM v0.1.0 ready — tools: describe_capabilities, simulate_evm_bytecode
+```
+
+If you only see `describe_capabilities` in that line, the running binary is stale.
 
 ## License
 
