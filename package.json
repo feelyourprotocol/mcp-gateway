@@ -7,7 +7,8 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "bin": {
-    "fyp-mcp": "./dist/index.js"
+    "fyp-mcp": "./dist/index.js",
+    "fyp-mcp-http": "./dist/http/index.js"
   },
   "exports": {
     ".": {
@@ -28,6 +29,7 @@
     "lf": "npm run format && npm run lint",
     "lf:ci": "eslint . && prettier -c src/",
     "start": "node dist/index.js",
+    "start:http": "node dist/http/index.js",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
@@ -47,7 +49,10 @@
     "prettier": "3.6.2",
     "typescript": "~5.8.0",
     "typescript-eslint": "^8.38.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "supertest": "^7.1.4",
+    "@types/express": "^5.0.3",
+    "@types/supertest": "^6.0.3"
   },
   "license": "MIT",
   "repository": {
