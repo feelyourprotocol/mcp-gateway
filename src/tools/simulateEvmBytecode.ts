@@ -6,7 +6,7 @@ import { simulateEvmBytecodeInputShape } from "../schemas/simulateEvmBytecode.sc
 import { TOOL_SIMULATE_EVM_BYTECODE } from "../server/constants.js";
 
 const SIMULATE_EVM_BYTECODE_DESCRIPTION =
-  "Run raw EVM bytecode under a future fork / EIP configuration and return deterministic results: success, gas used, return data, final stack, optional opcode trace, and provenance. Use for gas estimation, opcode behavior (e.g. EIP-8024 DUPN/SWAPN/EXCHANGE), and fork what-if analysis. Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps. Call describe_capabilities first to see supported forks and EIPs.";
+  "Run caller-supplied raw EVM bytecode under a future fork / EIP configuration and return deterministic results: success, gas used, return data, final stack, optional opcode trace, and provenance. Use for gas estimation, opcode behavior (EIP-8024 DUPN/SWAPN/EXCHANGE on Amsterdam), bytecode rewrites, and fork what-if analysis. Call describe_capabilities first for runnable EIP modules and opcode encoding. Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.";
 
 export function registerSimulateEvmBytecodeTool(
   server: McpServer,

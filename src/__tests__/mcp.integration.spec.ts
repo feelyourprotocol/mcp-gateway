@@ -1,12 +1,14 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
+import type { CompareVariantsInput } from "@feelyourprotocol/mcp-execution-engine";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { CallToolResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 import {
   SERVER_NAME,
+  TOOL_COMPARE_EVM_VARIANTS,
   TOOL_DESCRIBE_CAPABILITIES,
   TOOL_SIMULATE_EVM_BYTECODE,
 } from "../server/constants.js";
@@ -37,14 +39,19 @@ describe("MCP gateway (stdio integration)", () => {
 
     expect(names).toContain(TOOL_DESCRIBE_CAPABILITIES);
     expect(names).toContain(TOOL_SIMULATE_EVM_BYTECODE);
+    expect(names).toContain(TOOL_COMPARE_EVM_VARIANTS);
     expect(
       tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)
         ?.description,
-    ).toMatch(/Probe what this server supports/i);
+    ).toMatch(/Probe what this Feel Your Protocol EVM server supports/i);
     expect(
       tools.find((tool) => tool.name === TOOL_SIMULATE_EVM_BYTECODE)
         ?.description,
-    ).toMatch(/Run raw EVM bytecode/i);
+    ).toMatch(/Run caller-supplied raw EVM bytecode/i);
+    expect(
+      tools.find((tool) => tool.name === TOOL_COMPARE_EVM_VARIANTS)
+        ?.description,
+    ).toMatch(/Compare labelled EVM bytecode variants/i);
   });
 
   it("returns capability registry via describe_capabilities", async () => {
@@ -61,8 +68,13 @@ describe("MCP gateway (stdio integration)", () => {
 
     const payload = JSON.parse(extractTextContent(result)) as {
       engineVersion: string;
-      namedForks: { id: string }[];
-      eips: { eip: number }[];
+      namedForks: { id: string; aliases?: string[] }[];
+      eips: {
+        eip: number;
+        runnable?: boolean;
+        opcodes?: { name: string }[];
+        summary?: string;
+      }[];
       ceilings: { maxGasLimit: string };
     };
 
@@ -70,7 +82,14 @@ describe("MCP gateway (stdio integration)", () => {
     expect(payload.namedForks.some((fork) => fork.id === "amsterdam")).toBe(
       true,
     );
-    expect(payload.eips.some((eip) => eip.eip === 8024)).toBe(true);
+    expect(payload.namedForks[0]?.aliases).toContain("glamsterdam");
+    expect(payload.eips).toHaveLength(1);
+    expect(payload.eips[0]?.eip).toBe(8024);
+    expect(payload.eips[0]?.runnable).toBe(true);
+    expect(payload.eips[0]?.summary).toMatch(/Amsterdam/);
+    expect(payload.eips[0]?.opcodes?.some((op) => op.name === "DUPN")).toBe(
+      true,
+    );
     expect(BigInt(payload.ceilings.maxGasLimit)).toBe(30_000_000n);
   });
 
@@ -217,6 +236,57 @@ describe("MCP gateway (stdio integration)", () => {
     expect(payload.success).toBe(false);
     expect(payload.error).toMatch(/stack/i);
     expect(payload.provenance.engineVersion).toBe("0.1.0");
+  });
+
+  it("compares two Amsterdam programs via compare_evm_variants", async () => {
+    client = await connectClient();
+    const input = readEngineLabInput<CompareVariantsInput>(
+      "compare",
+      "01-two-bytecodes",
+    );
+    const result = await client.callTool(
+      {
+        name: TOOL_COMPARE_EVM_VARIANTS,
+        arguments: { ...input },
+      },
+      CallToolResultSchema,
+    );
+
+    expect(result.isError).not.toBe(true);
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      variants: { label: string; result: { success: boolean } }[];
+      diffs: { dimension: string }[];
+      provenance: { engineVersion: string };
+    };
+
+    expect(payload.variants).toHaveLength(2);
+    expect(payload.diffs.some((entry) => entry.dimension === "gasUsed")).toBe(
+      true,
+    );
+    expect(payload.provenance.engineVersion).toBe("0.1.0");
+  });
+
+  it("returns MCP error for compare_evm_variants with a single variant", async () => {
+    client = await connectClient();
+    const result = await client.callTool(
+      {
+        name: TOOL_COMPARE_EVM_VARIANTS,
+        arguments: {
+          variants: [
+            {
+              label: "only",
+              bytecode: "0x600100",
+              fork: { baseHardfork: "amsterdam", eips: [] },
+            },
+          ],
+        },
+      },
+      CallToolResultSchema,
+    );
+
+    expect(result.isError).toBe(true);
+    expect(extractTextContent(result)).toMatch(/invalid_input|variants/i);
   });
 });
 

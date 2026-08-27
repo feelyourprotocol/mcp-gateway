@@ -2,8 +2,7 @@
 import {
   SERVER_NAME,
   SERVER_VERSION,
-  TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_SIMULATE_EVM_BYTECODE,
+  TOOL_NAMES,
 } from "../server/constants.js";
 import { createHttpApp } from "./createHttpApp.js";
 
@@ -19,7 +18,7 @@ const app = createHttpApp(
 
 const server = app.listen(port, host, () => {
   console.error(
-    `[fyp-mcp] ${SERVER_NAME} v${SERVER_VERSION} HTTP ready on http://${host}:${port} — tools: ${TOOL_DESCRIBE_CAPABILITIES}, ${TOOL_SIMULATE_EVM_BYTECODE}`,
+    `[fyp-mcp] ${SERVER_NAME} v${SERVER_VERSION} HTTP ready on http://${host}:${port} — tools: ${TOOL_NAMES.join(", ")}`,
   );
   console.error(
     `[fyp-mcp] MCP endpoint: http://${host}:${port}/mcp (proxy via nginx for public HTTPS)`,

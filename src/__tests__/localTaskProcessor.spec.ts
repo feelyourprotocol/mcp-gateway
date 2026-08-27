@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  type CompareVariantsInput,
   ENGINE_CEILINGS,
   EngineError,
 } from "@feelyourprotocol/mcp-execution-engine";
@@ -21,7 +22,8 @@ describe("LocalTaskProcessor", () => {
     expect(result.namedForks.some((fork) => fork.id === "amsterdam")).toBe(
       true,
     );
-    expect(result.eips.some((eip) => eip.eip === 8024)).toBe(true);
+    expect(result.eips).toHaveLength(1);
+    expect(result.eips[0]?.eip).toBe(8024);
   });
 
   it("simulate runs PUSH1 STOP lab fixture", async () => {
@@ -79,5 +81,24 @@ describe("LocalTaskProcessor", () => {
         },
       }),
     ).rejects.toThrow(EngineError);
+  });
+
+  it("compare runs two-bytecodes lab fixture", async () => {
+    const input = readEngineLabInput<CompareVariantsInput>(
+      "compare",
+      "01-two-bytecodes",
+    );
+    const result = (await processor.submit({
+      kind: "compare",
+      payload: input,
+    })) as {
+      variants: unknown[];
+      diffs: { dimension: string }[];
+    };
+
+    expect(result.variants).toHaveLength(2);
+    expect(result.diffs.some((entry) => entry.dimension === "gasUsed")).toBe(
+      true,
+    );
   });
 });

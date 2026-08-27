@@ -5,8 +5,7 @@ import { createHttpApp } from "../http/createHttpApp.js";
 import {
   SERVER_NAME,
   SERVER_VERSION,
-  TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_SIMULATE_EVM_BYTECODE,
+  TOOL_NAMES,
 } from "../server/constants.js";
 
 describe("HTTP gateway", () => {
@@ -19,7 +18,7 @@ describe("HTTP gateway", () => {
       status: "ok",
       service: SERVER_NAME,
       version: SERVER_VERSION,
-      tools: [TOOL_DESCRIBE_CAPABILITIES, TOOL_SIMULATE_EVM_BYTECODE],
+      tools: [...TOOL_NAMES],
     });
   });
 

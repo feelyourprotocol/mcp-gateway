@@ -1,4 +1,5 @@
 import {
+  compareVariants,
   describeCapabilities,
   simulateBytecode,
 } from "@feelyourprotocol/mcp-execution-engine";
@@ -10,6 +11,8 @@ export class LocalTaskProcessor implements TaskProcessor {
     switch (task.kind) {
       case "simulate":
         return simulateBytecode(task.payload);
+      case "compare":
+        return compareVariants(task.payload);
       case "probe":
         return describeCapabilities();
       default: {

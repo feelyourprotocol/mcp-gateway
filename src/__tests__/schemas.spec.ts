@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  compareEvmVariantsInputSchema,
+  parseCompareEvmVariantsInput,
+} from "../schemas/compareEvmVariants.schema.js";
+import {
   parseSimulateEvmBytecodeInput,
   simulateEvmBytecodeInputSchema,
 } from "../schemas/simulateEvmBytecode.schema.js";
@@ -85,5 +89,47 @@ describe("simulateEvmBytecodeInputSchema", () => {
         fork: { baseHardfork: "amsterdam", eips: [0] },
       }),
     ).toThrow();
+  });
+});
+
+describe("compareEvmVariantsInputSchema", () => {
+  const twoVariants = {
+    variants: [
+      {
+        label: "a",
+        bytecode: "0x600100",
+        fork: { baseHardfork: "amsterdam", eips: [] },
+      },
+      {
+        label: "b",
+        bytecode: "0x6001600200",
+        fork: { baseHardfork: "amsterdam", eips: [] },
+      },
+    ],
+  };
+
+  it("requires at least two variants", () => {
+    expect(() =>
+      compareEvmVariantsInputSchema.parse({
+        variants: [twoVariants.variants[0]],
+      }),
+    ).toThrow();
+  });
+
+  it("rejects missing fork on a variant", () => {
+    expect(() =>
+      compareEvmVariantsInputSchema.parse({
+        variants: [
+          { label: "a", bytecode: "0x600100" },
+          twoVariants.variants[1],
+        ],
+      }),
+    ).toThrow();
+  });
+
+  it("accepts lab-shaped compare input", () => {
+    const parsed = parseCompareEvmVariantsInput(twoVariants);
+    expect(parsed.variants).toHaveLength(2);
+    expect(parsed.variants[0]?.label).toBe("a");
   });
 });

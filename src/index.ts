@@ -2,18 +2,13 @@
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 import { createGateway } from "./bootstrap/createGateway.js";
-import {
-  SERVER_NAME,
-  SERVER_VERSION,
-  TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_SIMULATE_EVM_BYTECODE,
-} from "./server/constants.js";
+import { SERVER_NAME, SERVER_VERSION, TOOL_NAMES } from "./server/constants.js";
 
 async function main(): Promise<void> {
   const { server } = createGateway();
 
   console.error(
-    `[fyp-mcp] ${SERVER_NAME} v${SERVER_VERSION} ready — tools: ${TOOL_DESCRIBE_CAPABILITIES}, ${TOOL_SIMULATE_EVM_BYTECODE}`,
+    `[fyp-mcp] ${SERVER_NAME} v${SERVER_VERSION} ready — tools: ${TOOL_NAMES.join(", ")}`,
   );
 
   const transport = new StdioServerTransport();

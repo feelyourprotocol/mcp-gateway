@@ -8,8 +8,7 @@ import { createGatewayServer } from "../bootstrap/createGateway.js";
 import {
   SERVER_NAME,
   SERVER_VERSION,
-  TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_SIMULATE_EVM_BYTECODE,
+  TOOL_NAMES,
 } from "../server/constants.js";
 
 export type CreateHttpAppOptions = {
@@ -35,7 +34,7 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
       status: "ok",
       service: SERVER_NAME,
       version: SERVER_VERSION,
-      tools: [TOOL_DESCRIBE_CAPABILITIES, TOOL_SIMULATE_EVM_BYTECODE],
+      tools: [...TOOL_NAMES],
     });
   });
 

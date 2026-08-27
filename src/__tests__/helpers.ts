@@ -9,10 +9,10 @@ const gatewayRoot = path.resolve(
 );
 const engineLabRoot = path.join(gatewayRoot, "../mcp-execution-engine/lab");
 
-export function readEngineLabInput(
+export function readEngineLabInput<T = SimulateBytecodeInput>(
   shape: string,
   exampleId: string,
-): SimulateBytecodeInput {
+): T {
   const filePath = path.join(
     engineLabRoot,
     "shapes",
@@ -21,7 +21,7 @@ export function readEngineLabInput(
     exampleId,
     "input.json",
   );
-  return JSON.parse(fs.readFileSync(filePath, "utf8")) as SimulateBytecodeInput;
+  return JSON.parse(fs.readFileSync(filePath, "utf8")) as T;
 }
 
 /** EIP-8024 EXCHANGE demo: stack [1,2,3,4] → EXCHANGE(2,3) → [1,4,3,2] */

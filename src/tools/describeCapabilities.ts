@@ -5,7 +5,7 @@ import { runToolHandler } from "../errors/toMcpError.js";
 import { TOOL_DESCRIBE_CAPABILITIES } from "../server/constants.js";
 
 const DESCRIBE_CAPABILITIES_DESCRIPTION =
-  "Probe what this server supports before running simulations. Returns engine version, gas/trace/bytecode ceilings, named forks (e.g. amsterdam), registered EIP capabilities with query shapes, and seed presets. Call this first to learn limits and available fork configurations.";
+  "Probe what this Feel Your Protocol EVM server supports before running simulations. Returns engine version, gas/trace/bytecode ceilings, named forks (amsterdam; alias glamsterdam), and registered runnable EIP modules (what became possible: opcodes, encoding rules, keywords). Live coverage: EIP-8024 DUPN/SWAPN/EXCHANGE on Amsterdam. Does not list unimplemented EIPs and does not ship demo programs — callers supply bytecode. Call this first for support questions (is EIP-8024 available? can I run Amsterdam bytecode with the new stack opcodes?) then use simulate_evm_bytecode or compare_evm_variants.";
 
 export function registerDescribeCapabilitiesTool(
   server: McpServer,

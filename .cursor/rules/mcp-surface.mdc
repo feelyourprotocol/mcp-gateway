@@ -1,0 +1,35 @@
+---
+description: MCP gateway invariants — few generic tools, probe-first, descriptions as prompt
+alwaysApply: true
+---
+
+# MCP surface (gateway)
+
+## Few generic tools
+
+- Tools are **verbs** (probe, simulate, compare), not per-EIP endpoints
+- Do not add `simulate_eip8024` or similar — EIP modules live in the engine catalog
+- New query shape → one new generic tool + engine function
+
+## Descriptions are the prompt
+
+- Tool `description` strings must mention Amsterdam, runnable EIPs, and caller-supplied bytecode
+- `describe_capabilities`: probe first — forks, runnable modules, opcodes/encoding
+- `simulate_evm_bytecode` / `compare_evm_variants`: point at probe; no demo programs shipped
+
+## Probe-first for runtime agents
+
+- Human and runtime agents should call `describe_capabilities` before simulate/compare
+- Live `describeCapabilities()` is authoritative — not stale markdown in the repo
+
+## After gateway changes
+
+1. `npm run build` in `mcp-gateway`
+2. `npm run build` in `mcp-execution-engine` if engine API changed
+3. Restart MCP server in Cursor (Settings → MCP)
+4. Update mcp-docs tool pages + `llms.txt` when behavior or tool list changes
+
+## Schemas
+
+- Zod in `src/schemas/` — source of truth for validation
+- Copy JSON schema to `website/mcp-docs/public/schemas/` when inputs change

@@ -28,6 +28,7 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | --- | --- | --- |
 | `describe_capabilities` | probe | Shipped (stdio) |
 | `simulate_evm_bytecode` | simulate | Shipped (stdio) |
+| `compare_evm_variants` | compare | Shipped (stdio) |
 
 ## Local development
 
@@ -68,10 +69,10 @@ Build first (`npm run build`). Use an absolute path to `dist/index.js`.
 On startup the server logs to **stderr** (visible in MCP logs):
 
 ```
-[fyp-mcp] FeelYourProtocol-EVM v0.1.0 ready — tools: describe_capabilities, simulate_evm_bytecode
+[fyp-mcp] FeelYourProtocol-EVM v0.1.0 ready — tools: describe_capabilities, simulate_evm_bytecode, compare_evm_variants
 ```
 
-If you only see `describe_capabilities` in that line, the running binary is stale.
+If you only see one tool in that line, the running binary is stale.
 
 ## JSON schemas
 
@@ -79,6 +80,7 @@ Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feel
 
 - [`schemas/describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
 - [`schemas/simulate_evm_bytecode.input.json`](./schemas/simulate_evm_bytecode.input.json)
+- [`schemas/compare_evm_variants.input.json`](./schemas/compare_evm_variants.input.json)
 
 ## License
 
