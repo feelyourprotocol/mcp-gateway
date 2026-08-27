@@ -3,7 +3,7 @@ import type { SimulateBytecodeInput } from '@feelyourprotocol/mcp-execution-engi
 
 const forkSchema = z
   .object({
-    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. amsterdam).'),
+    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
     eips: z
       .array(z.number().int().positive())
       .optional()

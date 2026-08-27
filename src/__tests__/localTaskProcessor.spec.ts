@@ -10,11 +10,14 @@ describe('LocalTaskProcessor', () => {
   it('probe returns capability registry snapshot', async () => {
     const result = (await processor.submit({ kind: 'probe' })) as {
       engineVersion: string
+      baselineForkId: string
       namedForks: { id: string }[]
       eips: { eip: number }[]
     }
 
     expect(result.engineVersion).toBe('0.1.0')
+    expect(result.baselineForkId).toBe('osaka')
+    expect(result.namedForks.some((fork) => fork.id === 'osaka')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
     expect(result.eips).toHaveLength(1)
     expect(result.eips[0]?.eip).toBe(8024)

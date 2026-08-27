@@ -53,23 +53,31 @@ describe('MCP gateway (stdio integration)', () => {
 
     const payload = JSON.parse(extractTextContent(result)) as {
       engineVersion: string
-      namedForks: { id: string; aliases?: string[] }[]
+      baselineForkId: string
+      namedForks: { id: string; role?: string; aliases?: string[] }[]
       eips: {
         eip: number
         runnable?: boolean
         opcodes?: { name: string }[]
         summary?: string
+        comparison?: { baselineForkId: string; previewForkId: string }
       }[]
       ceilings: { maxGasLimit: string }
     }
 
     expect(payload.engineVersion).toBe('0.1.0')
+    expect(payload.baselineForkId).toBe('osaka')
+    expect(payload.namedForks.some((fork) => fork.id === 'osaka' && fork.role === 'baseline')).toBe(
+      true,
+    )
     expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
-    expect(payload.namedForks[0]?.aliases).toContain('glamsterdam')
+    const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
+    expect(amsterdam?.aliases).toContain('glamsterdam')
     expect(payload.eips).toHaveLength(1)
     expect(payload.eips[0]?.eip).toBe(8024)
     expect(payload.eips[0]?.runnable).toBe(true)
     expect(payload.eips[0]?.summary).toMatch(/Amsterdam/)
+    expect(payload.eips[0]?.comparison?.baselineForkId).toBe('osaka')
     expect(payload.eips[0]?.opcodes?.some((op) => op.name === 'DUPN')).toBe(true)
     expect(BigInt(payload.ceilings.maxGasLimit)).toBe(30_000_000n)
   })
@@ -102,6 +110,34 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.provenance.engineVersion).toBe('0.1.0')
     expect(payload.provenance.forkConfig.baseHardfork).toBe('amsterdam')
     expect(payload.steps?.[0]?.op).toBe('PUSH1')
+  })
+
+  it('runs DUPN on osaka baseline and fails with invalid opcode', async () => {
+    client = await connectClient()
+    const input = readEngineLabInput('simulate', '02-dupn-amsterdam')
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_EVM_BYTECODE,
+        arguments: {
+          ...input,
+          fork: { baseHardfork: 'osaka', eips: [] },
+        },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      error: string | null
+      provenance: { forkConfig: { baseHardfork: string }; stabilityRollup?: string }
+    }
+
+    expect(payload.success).toBe(false)
+    expect(payload.error).toMatch(/invalid/i)
+    expect(payload.provenance.forkConfig.baseHardfork).toBe('osaka')
+    expect(payload.provenance.stabilityRollup).toBe('firm')
   })
 
   it('runs DUPN amsterdam via run_evm_bytecode', async () => {
