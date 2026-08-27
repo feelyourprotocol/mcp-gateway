@@ -1,135 +1,130 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest'
 
 import {
   compareEvmVariantsInputSchema,
   parseCompareEvmVariantsInput,
-} from "../schemas/compareEvmVariants.schema.js";
+} from '../schemas/compareEvmVariants.schema.js'
 import {
   parseSimulateEvmBytecodeInput,
   simulateEvmBytecodeInputSchema,
-} from "../schemas/simulateEvmBytecode.schema.js";
+} from '../schemas/simulateEvmBytecode.schema.js'
 
-describe("simulateEvmBytecodeInputSchema", () => {
-  it("requires bytecode", () => {
-    expect(() => simulateEvmBytecodeInputSchema.parse({})).toThrow();
-  });
+describe('simulateEvmBytecodeInputSchema', () => {
+  it('requires bytecode', () => {
+    expect(() => simulateEvmBytecodeInputSchema.parse({})).toThrow()
+  })
 
-  it("rejects empty bytecode string", () => {
-    expect(() =>
-      simulateEvmBytecodeInputSchema.parse({ bytecode: "" }),
-    ).toThrow();
-  });
+  it('rejects empty bytecode string', () => {
+    expect(() => simulateEvmBytecodeInputSchema.parse({ bytecode: '' })).toThrow()
+  })
 
-  it("rejects fork without baseHardfork", () => {
+  it('rejects fork without baseHardfork', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+        bytecode: '0x600100',
         fork: { eips: [8024] },
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects unknown top-level fields", () => {
+  it('rejects unknown top-level fields', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+        bytecode: '0x600100',
         extra: true,
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("accepts minimal valid input", () => {
-    const parsed = parseSimulateEvmBytecodeInput({ bytecode: "0x600100" });
-    expect(parsed.bytecode).toBe("0x600100");
-  });
+  it('accepts minimal valid input', () => {
+    const parsed = parseSimulateEvmBytecodeInput({ bytecode: '0x600100' })
+    expect(parsed.bytecode).toBe('0x600100')
+  })
 
-  it("accepts full lab-shaped input", () => {
+  it('accepts full lab-shaped input', () => {
     const parsed = parseSimulateEvmBytecodeInput({
-      bytecode: "0x600100",
-      fork: { baseHardfork: "amsterdam", eips: [] },
-      gasLimit: "1000000",
+      bytecode: '0x600100',
+      fork: { baseHardfork: 'amsterdam', eips: [] },
+      gasLimit: '1000000',
       trace: true,
-    });
+    })
 
-    expect(parsed.fork?.baseHardfork).toBe("amsterdam");
-    expect(parsed.trace).toBe(true);
-  });
+    expect(parsed.fork?.baseHardfork).toBe('amsterdam')
+    expect(parsed.trace).toBe(true)
+  })
 
-  it("rejects non-string gasLimit", () => {
+  it('rejects non-string gasLimit', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+        bytecode: '0x600100',
         gasLimit: 1_000_000,
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-boolean trace flag", () => {
+  it('rejects non-boolean trace flag', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        trace: "true",
+        bytecode: '0x600100',
+        trace: 'true',
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-numeric eip entries", () => {
+  it('rejects non-numeric eip entries', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        fork: { baseHardfork: "amsterdam", eips: ["8024"] },
+        bytecode: '0x600100',
+        fork: { baseHardfork: 'amsterdam', eips: ['8024'] },
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-positive eip numbers", () => {
+  it('rejects non-positive eip numbers', () => {
     expect(() =>
       simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        fork: { baseHardfork: "amsterdam", eips: [0] },
+        bytecode: '0x600100',
+        fork: { baseHardfork: 'amsterdam', eips: [0] },
       }),
-    ).toThrow();
-  });
-});
+    ).toThrow()
+  })
+})
 
-describe("compareEvmVariantsInputSchema", () => {
+describe('compareEvmVariantsInputSchema', () => {
   const twoVariants = {
     variants: [
       {
-        label: "a",
-        bytecode: "0x600100",
-        fork: { baseHardfork: "amsterdam", eips: [] },
+        label: 'a',
+        bytecode: '0x600100',
+        fork: { baseHardfork: 'amsterdam', eips: [] },
       },
       {
-        label: "b",
-        bytecode: "0x6001600200",
-        fork: { baseHardfork: "amsterdam", eips: [] },
+        label: 'b',
+        bytecode: '0x6001600200',
+        fork: { baseHardfork: 'amsterdam', eips: [] },
       },
     ],
-  };
+  }
 
-  it("requires at least two variants", () => {
+  it('requires at least two variants', () => {
     expect(() =>
       compareEvmVariantsInputSchema.parse({
         variants: [twoVariants.variants[0]],
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects missing fork on a variant", () => {
+  it('rejects missing fork on a variant', () => {
     expect(() =>
       compareEvmVariantsInputSchema.parse({
-        variants: [
-          { label: "a", bytecode: "0x600100" },
-          twoVariants.variants[1],
-        ],
+        variants: [{ label: 'a', bytecode: '0x600100' }, twoVariants.variants[1]],
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("accepts lab-shaped compare input", () => {
-    const parsed = parseCompareEvmVariantsInput(twoVariants);
-    expect(parsed.variants).toHaveLength(2);
-    expect(parsed.variants[0]?.label).toBe("a");
-  });
-});
+  it('accepts lab-shaped compare input', () => {
+    const parsed = parseCompareEvmVariantsInput(twoVariants)
+    expect(parsed.variants).toHaveLength(2)
+    expect(parsed.variants[0]?.label).toBe('a')
+  })
+})

@@ -1,17 +1,12 @@
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 
-import type { TaskProcessor } from "../engine/TaskProcessor.js";
-import { runToolHandler } from "../errors/toMcpError.js";
-import { simulateEvmBytecodeInputShape } from "../schemas/simulateEvmBytecode.schema.js";
-import { TOOL_SIMULATE_EVM_BYTECODE } from "../server/constants.js";
+import type { TaskProcessor } from '../engine/TaskProcessor.js'
+import { runToolHandler } from '../errors/toMcpError.js'
+import { simulateEvmBytecodeInputShape } from '../schemas/simulateEvmBytecode.schema.js'
+import { TOOL_SIMULATE_EVM_BYTECODE } from '../server/constants.js'
+import { SIMULATE_EVM_BYTECODE_DESCRIPTION } from './toolDescriptions.js'
 
-const SIMULATE_EVM_BYTECODE_DESCRIPTION =
-  "Run caller-supplied raw EVM bytecode under a future fork / EIP configuration and return deterministic results: success, gas used, return data, final stack, optional opcode trace, and provenance. Use for gas estimation, opcode behavior (EIP-8024 DUPN/SWAPN/EXCHANGE on Amsterdam), bytecode rewrites, and fork what-if analysis. Call describe_capabilities first for runnable EIP modules and opcode encoding. Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.";
-
-export function registerSimulateEvmBytecodeTool(
-  server: McpServer,
-  processor: TaskProcessor,
-): void {
+export function registerSimulateEvmBytecodeTool(server: McpServer, processor: TaskProcessor): void {
   server.registerTool(
     TOOL_SIMULATE_EVM_BYTECODE,
     {
@@ -20,7 +15,7 @@ export function registerSimulateEvmBytecodeTool(
     },
     async (input) =>
       runToolHandler(async () => {
-        return processor.submit({ kind: "simulate", payload: input });
+        return processor.submit({ kind: 'simulate', payload: input })
       }),
-  );
+  )
 }
