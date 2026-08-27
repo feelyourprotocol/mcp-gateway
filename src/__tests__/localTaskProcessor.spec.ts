@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  type CompareVariantsInput,
-  ENGINE_CEILINGS,
-  EngineError,
-} from '@feelyourprotocol/mcp-execution-engine'
+import { ENGINE_CEILINGS, EngineError } from '@feelyourprotocol/mcp-execution-engine'
 
 import { LocalTaskProcessor } from '../engine/LocalTaskProcessor.js'
 import { readEngineLabInput } from './helpers.js'
@@ -79,19 +75,5 @@ describe('LocalTaskProcessor', () => {
         },
       }),
     ).rejects.toThrow(EngineError)
-  })
-
-  it('compare runs two-bytecodes lab fixture', async () => {
-    const input = readEngineLabInput<CompareVariantsInput>('compare', '01-two-bytecodes')
-    const result = (await processor.submit({
-      kind: 'compare',
-      payload: input,
-    })) as {
-      variants: unknown[]
-      diffs: { dimension: string }[]
-    }
-
-    expect(result.variants).toHaveLength(2)
-    expect(result.diffs.some((entry) => entry.dimension === 'gasUsed')).toBe(true)
   })
 })

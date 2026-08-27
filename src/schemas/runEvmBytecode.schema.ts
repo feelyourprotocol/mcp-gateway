@@ -11,7 +11,7 @@ const forkSchema = z
   })
   .describe('Fork capability set. Omit to use engine default (amsterdam).')
 
-export const simulateEvmBytecodeInputShape = {
+export const runEvmBytecodeInputShape = {
   bytecode: z
     .string()
     .min(1)
@@ -31,10 +31,10 @@ export const simulateEvmBytecodeInputShape = {
     ),
 } as const
 
-export const simulateEvmBytecodeInputSchema = z.object(simulateEvmBytecodeInputShape).strict()
+export const runEvmBytecodeInputSchema = z.object(runEvmBytecodeInputShape).strict()
 
-export type SimulateEvmBytecodeToolInput = z.infer<typeof simulateEvmBytecodeInputSchema>
+export type RunEvmBytecodeToolInput = z.infer<typeof runEvmBytecodeInputSchema>
 
-export function parseSimulateEvmBytecodeInput(input: unknown): SimulateBytecodeInput {
-  return simulateEvmBytecodeInputSchema.parse(input)
+export function parseRunEvmBytecodeInput(input: unknown): SimulateBytecodeInput {
+  return runEvmBytecodeInputSchema.parse(input)
 }

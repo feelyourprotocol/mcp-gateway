@@ -27,8 +27,7 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | MCP tool | Shape | Status |
 | --- | --- | --- |
 | `describe_capabilities` | probe | Shipped (stdio) |
-| `simulate_evm_bytecode` | simulate | Shipped (stdio) |
-| `compare_evm_variants` | compare | Shipped (stdio) |
+| `run_evm_bytecode` | run | Shipped (stdio) |
 
 ## Local development
 
@@ -45,7 +44,7 @@ npm ci && npm run build
 
 # From mcp-gateway
 npm ci
-npm run test:ci    # build + vitest (30 tests)
+npm run test:ci    # build + vitest
 npm run build && npm start   # stdio MCP server (for agent config)
 ```
 
@@ -69,7 +68,7 @@ Build first (`npm run build`). Use an absolute path to `dist/index.js`.
 On startup the server logs to **stderr** (visible in MCP logs):
 
 ```
-[fyp-mcp] FeelYourProtocol-EVM v0.1.0 ready — tools: describe_capabilities, simulate_evm_bytecode, compare_evm_variants
+[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_evm_bytecode
 ```
 
 If you only see one tool in that line, the running binary is stale.
@@ -79,8 +78,7 @@ If you only see one tool in that line, the running binary is stale.
 Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feelyourprotocol.org)):
 
 - [`schemas/describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
-- [`schemas/simulate_evm_bytecode.input.json`](./schemas/simulate_evm_bytecode.input.json)
-- [`schemas/compare_evm_variants.input.json`](./schemas/compare_evm_variants.input.json)
+- [`schemas/run_evm_bytecode.input.json`](./schemas/run_evm_bytecode.input.json)
 
 ## License
 

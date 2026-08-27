@@ -14,13 +14,20 @@ MCP transport + tool registry. Maps generic MCP tools to engine query shapes. No
 Agent → mcp-gateway (this repo) → mcp-execution-engine → EthereumJS
 ```
 
+## MCP identity
+
+| Constant | Value | Notes |
+| --- | --- | --- |
+| `SERVER_NAME` | `FeelYourProtocol` | MCP handshake `name` — product id, not `-EVM` (server scope is broader than EVM) |
+| Config key (docs) | `feel-your-protocol` | User-chosen in `mcp.json`; kebab-case |
+| CLI / logs | `fyp-mcp` | Bin and stderr prefix |
+
 ## Live tools (v0.1)
 
 | MCP tool | Engine call |
 | --- | --- |
 | `describe_capabilities` | `describeCapabilities()` |
-| `simulate_evm_bytecode` | `simulateBytecode()` |
-| `compare_evm_variants` | `compareVariants()` |
+| `run_evm_bytecode` | `simulateBytecode()` |
 
 Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`). EIP coverage is advertised via tool descriptions + live probe output.
 

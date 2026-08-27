@@ -1,16 +1,14 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { afterEach, describe, expect, it } from 'vitest'
-import type { CompareVariantsInput } from '@feelyourprotocol/mcp-execution-engine'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 
 import {
   SERVER_NAME,
-  TOOL_COMPARE_EVM_VARIANTS,
   TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_SIMULATE_EVM_BYTECODE,
+  TOOL_RUN_EVM_BYTECODE,
 } from '../server/constants.js'
 import { EXCHANGE_AMSTERDAM_BYTECODE, extractTextContent, readEngineLabInput } from './helpers.js'
 
@@ -31,16 +29,13 @@ describe('MCP gateway (stdio integration)', () => {
     const names = tools.map((tool) => tool.name)
 
     expect(names).toContain(TOOL_DESCRIBE_CAPABILITIES)
-    expect(names).toContain(TOOL_SIMULATE_EVM_BYTECODE)
-    expect(names).toContain(TOOL_COMPARE_EVM_VARIANTS)
+    expect(names).toContain(TOOL_RUN_EVM_BYTECODE)
+    expect(names).toHaveLength(2)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
-      /Probe what this Feel Your Protocol EVM server supports/i,
+      /Probe what this Feel Your Protocol MCP server supports/i,
     )
-    expect(tools.find((tool) => tool.name === TOOL_SIMULATE_EVM_BYTECODE)?.description).toMatch(
+    expect(tools.find((tool) => tool.name === TOOL_RUN_EVM_BYTECODE)?.description).toMatch(
       /Run caller-supplied raw EVM bytecode/i,
-    )
-    expect(tools.find((tool) => tool.name === TOOL_COMPARE_EVM_VARIANTS)?.description).toMatch(
-      /Compare labelled EVM bytecode variants/i,
     )
   })
 
@@ -79,12 +74,12 @@ describe('MCP gateway (stdio integration)', () => {
     expect(BigInt(payload.ceilings.maxGasLimit)).toBe(30_000_000n)
   })
 
-  it('simulates PUSH1 STOP via simulate_evm_bytecode', async () => {
+  it('runs PUSH1 STOP via run_evm_bytecode', async () => {
     client = await connectClient()
     const input = readEngineLabInput('simulate', '01-push1-stop')
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: { ...input },
       },
       CallToolResultSchema,
@@ -109,12 +104,12 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.steps?.[0]?.op).toBe('PUSH1')
   })
 
-  it('simulates DUPN amsterdam via simulate_evm_bytecode', async () => {
+  it('runs DUPN amsterdam via run_evm_bytecode', async () => {
     client = await connectClient()
     const input = readEngineLabInput('simulate', '02-dupn-amsterdam')
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: { ...input },
       },
       CallToolResultSchema,
@@ -133,11 +128,11 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.steps?.some((step) => step.op === 'DUPN')).toBe(true)
   })
 
-  it('returns MCP error for invalid simulate_evm_bytecode input', async () => {
+  it('returns MCP error for invalid run_evm_bytecode input', async () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: { bytecode: '' },
       },
       CallToolResultSchema,
@@ -151,7 +146,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: {
           bytecode: EXCHANGE_AMSTERDAM_BYTECODE,
           fork: { baseHardfork: 'amsterdam', eips: [] },
@@ -183,7 +178,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: {
           bytecode: '0x600100',
           fork: { baseHardfork: 'not-a-real-fork', eips: [] },
@@ -200,7 +195,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_SIMULATE_EVM_BYTECODE,
+        name: TOOL_RUN_EVM_BYTECODE,
         arguments: {
           bytecode: '0x600160026003e68000',
           fork: { baseHardfork: 'amsterdam', eips: [] },
@@ -220,52 +215,6 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.success).toBe(false)
     expect(payload.error).toMatch(/stack/i)
     expect(payload.provenance.engineVersion).toBe('0.1.0')
-  })
-
-  it('compares two Amsterdam programs via compare_evm_variants', async () => {
-    client = await connectClient()
-    const input = readEngineLabInput<CompareVariantsInput>('compare', '01-two-bytecodes')
-    const result = await client.callTool(
-      {
-        name: TOOL_COMPARE_EVM_VARIANTS,
-        arguments: { ...input },
-      },
-      CallToolResultSchema,
-    )
-
-    expect(result.isError).not.toBe(true)
-
-    const payload = JSON.parse(extractTextContent(result)) as {
-      variants: { label: string; result: { success: boolean } }[]
-      diffs: { dimension: string }[]
-      provenance: { engineVersion: string }
-    }
-
-    expect(payload.variants).toHaveLength(2)
-    expect(payload.diffs.some((entry) => entry.dimension === 'gasUsed')).toBe(true)
-    expect(payload.provenance.engineVersion).toBe('0.1.0')
-  })
-
-  it('returns MCP error for compare_evm_variants with a single variant', async () => {
-    client = await connectClient()
-    const result = await client.callTool(
-      {
-        name: TOOL_COMPARE_EVM_VARIANTS,
-        arguments: {
-          variants: [
-            {
-              label: 'only',
-              bytecode: '0x600100',
-              fork: { baseHardfork: 'amsterdam', eips: [] },
-            },
-          ],
-        },
-      },
-      CallToolResultSchema,
-    )
-
-    expect(result.isError).toBe(true)
-    expect(extractTextContent(result)).toMatch(/invalid_input|variants/i)
   })
 })
 
