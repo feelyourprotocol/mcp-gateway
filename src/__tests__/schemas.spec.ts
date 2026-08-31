@@ -1,89 +1,87 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest'
 
 import {
-  parseSimulateEvmBytecodeInput,
-  simulateEvmBytecodeInputSchema,
-} from "../schemas/simulateEvmBytecode.schema.js";
+  parseRunEvmBytecodeInput,
+  runEvmBytecodeInputSchema,
+} from '../schemas/runEvmBytecode.schema.js'
 
-describe("simulateEvmBytecodeInputSchema", () => {
-  it("requires bytecode", () => {
-    expect(() => simulateEvmBytecodeInputSchema.parse({})).toThrow();
-  });
+describe('runEvmBytecodeInputSchema', () => {
+  it('requires bytecode', () => {
+    expect(() => runEvmBytecodeInputSchema.parse({})).toThrow()
+  })
 
-  it("rejects empty bytecode string", () => {
+  it('rejects empty bytecode string', () => {
+    expect(() => runEvmBytecodeInputSchema.parse({ bytecode: '' })).toThrow()
+  })
+
+  it('rejects fork without baseHardfork', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({ bytecode: "" }),
-    ).toThrow();
-  });
-
-  it("rejects fork without baseHardfork", () => {
-    expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
         fork: { eips: [8024] },
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects unknown top-level fields", () => {
+  it('rejects unknown top-level fields', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
         extra: true,
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("accepts minimal valid input", () => {
-    const parsed = parseSimulateEvmBytecodeInput({ bytecode: "0x600100" });
-    expect(parsed.bytecode).toBe("0x600100");
-  });
+  it('accepts minimal valid input', () => {
+    const parsed = parseRunEvmBytecodeInput({ bytecode: '0x600100' })
+    expect(parsed.bytecode).toBe('0x600100')
+  })
 
-  it("accepts full lab-shaped input", () => {
-    const parsed = parseSimulateEvmBytecodeInput({
-      bytecode: "0x600100",
-      fork: { baseHardfork: "amsterdam", eips: [] },
-      gasLimit: "1000000",
+  it('accepts full lab-shaped input', () => {
+    const parsed = parseRunEvmBytecodeInput({
+      bytecode: '0x600100',
+      fork: { baseHardfork: 'amsterdam', eips: [] },
+      gasLimit: '1000000',
       trace: true,
-    });
+    })
 
-    expect(parsed.fork?.baseHardfork).toBe("amsterdam");
-    expect(parsed.trace).toBe(true);
-  });
+    expect(parsed.fork?.baseHardfork).toBe('amsterdam')
+    expect(parsed.trace).toBe(true)
+  })
 
-  it("rejects non-string gasLimit", () => {
+  it('rejects non-string gasLimit', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
         gasLimit: 1_000_000,
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-boolean trace flag", () => {
+  it('rejects non-boolean trace flag', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        trace: "true",
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
+        trace: 'true',
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-numeric eip entries", () => {
+  it('rejects non-numeric eip entries', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        fork: { baseHardfork: "amsterdam", eips: ["8024"] },
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
+        fork: { baseHardfork: 'amsterdam', eips: ['8024'] },
       }),
-    ).toThrow();
-  });
+    ).toThrow()
+  })
 
-  it("rejects non-positive eip numbers", () => {
+  it('rejects non-positive eip numbers', () => {
     expect(() =>
-      simulateEvmBytecodeInputSchema.parse({
-        bytecode: "0x600100",
-        fork: { baseHardfork: "amsterdam", eips: [0] },
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
+        fork: { baseHardfork: 'amsterdam', eips: [0] },
       }),
-    ).toThrow();
-  });
-});
+    ).toThrow()
+  })
+})

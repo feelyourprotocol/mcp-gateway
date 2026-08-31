@@ -25,10 +25,24 @@ jobs:
         with:
           path: mcp-gateway
 
-      - name: Checkout execution engine
+      # Gateway PRs often land with a matching branch on mcp-execution-engine.
+      # Try that first so CI does not race engine main; fall back to main.
+      - name: Checkout execution engine (matching PR branch)
+        if: github.event_name == 'pull_request'
+        id: engine_pr_branch
+        continue-on-error: true
         uses: actions/checkout@v5
         with:
           repository: feelyourprotocol/mcp-execution-engine
+          ref: ${{ github.head_ref }}
+          path: mcp-execution-engine
+
+      - name: Checkout execution engine (main)
+        if: github.event_name != 'pull_request' || steps.engine_pr_branch.outcome != 'success'
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/mcp-execution-engine
+          ref: main
           path: mcp-execution-engine
 
       - name: Setup Node.js
