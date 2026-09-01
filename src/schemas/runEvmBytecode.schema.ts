@@ -15,17 +15,16 @@ const messageCallSchema = z
   .object({
     caller: z.string().min(1).describe('Hex sender address.'),
     to: z.string().min(1).describe('Hex call target address.'),
-    value: z
-      .string()
-      .optional()
-      .describe('Value in wei as decimal string. Default 0.'),
+    value: z.string().optional().describe('Value in wei as decimal string. Default 0.'),
     data: z.string().optional().describe('Optional calldata hex.'),
     code: z
       .string()
       .optional()
       .describe('Optional runtime bytecode installed at to before the call.'),
   })
-  .describe('Value-bearing message call — use for plain ETH moves and EIP-7708 logs without wrapper bytecode.')
+  .describe(
+    'Value-bearing message call — use for plain ETH moves and EIP-7708 logs without wrapper bytecode.',
+  )
 
 export const runEvmBytecodeInputShape = {
   bytecode: z
