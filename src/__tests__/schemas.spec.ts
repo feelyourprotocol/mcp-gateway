@@ -10,6 +10,29 @@ describe('runEvmBytecodeInputSchema', () => {
     expect(() => runEvmBytecodeInputSchema.parse({})).toThrow()
   })
 
+  it('accepts messageCall without bytecode', () => {
+    const parsed = parseRunEvmBytecodeInput({
+      messageCall: {
+        caller: '0x00000000000000000000000000000000000000ee',
+        to: '0x00000000000000000000000000000000000000aa',
+        value: '1',
+      },
+    })
+    expect(parsed.messageCall?.value).toBe('1')
+  })
+
+  it('rejects bytecode and messageCall together', () => {
+    expect(() =>
+      runEvmBytecodeInputSchema.parse({
+        bytecode: '0x600100',
+        messageCall: {
+          caller: '0x00000000000000000000000000000000000000ee',
+          to: '0x00000000000000000000000000000000000000aa',
+        },
+      }),
+    ).toThrow()
+  })
+
   it('rejects empty bytecode string', () => {
     expect(() => runEvmBytecodeInputSchema.parse({ bytecode: '' })).toThrow()
   })

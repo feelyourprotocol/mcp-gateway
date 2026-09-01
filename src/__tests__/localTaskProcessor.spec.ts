@@ -20,8 +20,8 @@ describe('LocalTaskProcessor', () => {
     expect(result.namedForks.some((fork) => fork.id === 'prague')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'osaka')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
-    expect(result.eips).toHaveLength(3)
-    expect(result.eips.map((e) => e.eip).sort()).toEqual([7883, 7951, 8024])
+    expect(result.eips).toHaveLength(4)
+    expect(result.eips.map((e) => e.eip).sort()).toEqual([7708, 7883, 7951, 8024])
   })
 
   it('simulate runs PUSH1 STOP lab fixture', async () => {
