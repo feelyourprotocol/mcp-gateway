@@ -20,8 +20,8 @@ describe('LocalTaskProcessor', () => {
     expect(result.namedForks.some((fork) => fork.id === 'prague')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'osaka')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
-    expect(result.eips).toHaveLength(4)
-    expect(result.eips.map((e) => e.eip).sort()).toEqual([7708, 7883, 7951, 8024])
+    expect(result.eips).toHaveLength(5)
+    expect(result.eips.map((e) => e.eip).sort()).toEqual([7708, 7883, 7951, 8024, 8037])
   })
 
   it('simulate runs PUSH1 STOP lab fixture', async () => {
@@ -79,5 +79,25 @@ describe('LocalTaskProcessor', () => {
         },
       }),
     ).rejects.toThrow(EngineError)
+  })
+
+  it('transaction runs a first-touch transfer on Amsterdam', async () => {
+    const result = (await processor.submit({
+      kind: 'transaction',
+      payload: {
+        from: '0x00000000000000000000000000000000000000ee',
+        to: '0x00000000000000000000000000000000000000aa',
+        value: '1',
+        fork: { baseHardfork: 'amsterdam' },
+      },
+    })) as {
+      success: boolean
+      gasUsed: string
+      gasUsedScope: string
+    }
+
+    expect(result.success).toBe(true)
+    expect(result.gasUsedScope).toBe('transaction')
+    expect(result.gasUsed).toBe('204600')
   })
 })
