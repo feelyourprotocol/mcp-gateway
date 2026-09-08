@@ -1,45 +1,23 @@
 import { describe, expect, it } from 'vitest'
 
+import { parseRunBytecodeInput, runBytecodeInputSchema } from '../schemas/runBytecode.schema.js'
 import {
-  parseRunEvmBytecodeInput,
-  runEvmBytecodeInputSchema,
-} from '../schemas/runEvmBytecode.schema.js'
+  parseRunTransactionInput,
+  runTransactionInputSchema,
+} from '../schemas/runTransaction.schema.js'
 
-describe('runEvmBytecodeInputSchema', () => {
+describe('runBytecodeInputSchema', () => {
   it('requires bytecode', () => {
-    expect(() => runEvmBytecodeInputSchema.parse({})).toThrow()
-  })
-
-  it('accepts messageCall without bytecode', () => {
-    const parsed = parseRunEvmBytecodeInput({
-      messageCall: {
-        caller: '0x00000000000000000000000000000000000000ee',
-        to: '0x00000000000000000000000000000000000000aa',
-        value: '1',
-      },
-    })
-    expect(parsed.messageCall?.value).toBe('1')
-  })
-
-  it('rejects bytecode and messageCall together', () => {
-    expect(() =>
-      runEvmBytecodeInputSchema.parse({
-        bytecode: '0x600100',
-        messageCall: {
-          caller: '0x00000000000000000000000000000000000000ee',
-          to: '0x00000000000000000000000000000000000000aa',
-        },
-      }),
-    ).toThrow()
+    expect(() => runBytecodeInputSchema.parse({})).toThrow()
   })
 
   it('rejects empty bytecode string', () => {
-    expect(() => runEvmBytecodeInputSchema.parse({ bytecode: '' })).toThrow()
+    expect(() => runBytecodeInputSchema.parse({ bytecode: '' })).toThrow()
   })
 
   it('rejects fork without baseHardfork', () => {
     expect(() =>
-      runEvmBytecodeInputSchema.parse({
+      runBytecodeInputSchema.parse({
         bytecode: '0x600100',
         fork: { eips: [8024] },
       }),
@@ -48,7 +26,7 @@ describe('runEvmBytecodeInputSchema', () => {
 
   it('rejects unknown top-level fields', () => {
     expect(() =>
-      runEvmBytecodeInputSchema.parse({
+      runBytecodeInputSchema.parse({
         bytecode: '0x600100',
         extra: true,
       }),
@@ -56,12 +34,12 @@ describe('runEvmBytecodeInputSchema', () => {
   })
 
   it('accepts minimal valid input', () => {
-    const parsed = parseRunEvmBytecodeInput({ bytecode: '0x600100' })
+    const parsed = parseRunBytecodeInput({ bytecode: '0x600100' })
     expect(parsed.bytecode).toBe('0x600100')
   })
 
   it('accepts full lab-shaped input', () => {
-    const parsed = parseRunEvmBytecodeInput({
+    const parsed = parseRunBytecodeInput({
       bytecode: '0x600100',
       fork: { baseHardfork: 'amsterdam', eips: [] },
       gasLimit: '1000000',
@@ -74,36 +52,44 @@ describe('runEvmBytecodeInputSchema', () => {
 
   it('rejects non-string gasLimit', () => {
     expect(() =>
-      runEvmBytecodeInputSchema.parse({
+      runBytecodeInputSchema.parse({
         bytecode: '0x600100',
         gasLimit: 1_000_000,
       }),
     ).toThrow()
   })
 
-  it('rejects non-boolean trace flag', () => {
+  it('rejects messageCall leftovers', () => {
     expect(() =>
-      runEvmBytecodeInputSchema.parse({
+      runBytecodeInputSchema.parse({
         bytecode: '0x600100',
-        trace: 'true',
+        messageCall: { caller: '0x00', to: '0x00' },
       }),
     ).toThrow()
   })
+})
 
-  it('rejects non-numeric eip entries', () => {
-    expect(() =>
-      runEvmBytecodeInputSchema.parse({
-        bytecode: '0x600100',
-        fork: { baseHardfork: 'amsterdam', eips: ['8024'] },
-      }),
-    ).toThrow()
+describe('runTransactionInputSchema', () => {
+  it('requires from and to', () => {
+    expect(() => runTransactionInputSchema.parse({})).toThrow()
+    expect(() => runTransactionInputSchema.parse({ from: '0x00' })).toThrow()
   })
 
-  it('rejects non-positive eip numbers', () => {
+  it('accepts a minimal value transfer', () => {
+    const parsed = parseRunTransactionInput({
+      from: '0x00000000000000000000000000000000000000ee',
+      to: '0x00000000000000000000000000000000000000aa',
+      value: '1',
+    })
+    expect(parsed.value).toBe('1')
+  })
+
+  it('rejects unknown top-level fields', () => {
     expect(() =>
-      runEvmBytecodeInputSchema.parse({
-        bytecode: '0x600100',
-        fork: { baseHardfork: 'amsterdam', eips: [0] },
+      runTransactionInputSchema.parse({
+        from: '0x00000000000000000000000000000000000000ee',
+        to: '0x00000000000000000000000000000000000000aa',
+        extra: true,
       }),
     ).toThrow()
   })

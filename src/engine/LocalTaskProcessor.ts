@@ -1,4 +1,8 @@
-import { describeCapabilities, simulateBytecode } from '@feelyourprotocol/mcp-execution-engine'
+import {
+  describeCapabilities,
+  runTransaction,
+  simulateBytecode,
+} from '@feelyourprotocol/mcp-execution-engine'
 
 import type { SimulationTask, TaskProcessor } from './TaskProcessor.js'
 
@@ -7,6 +11,8 @@ export class LocalTaskProcessor implements TaskProcessor {
     switch (task.kind) {
       case 'simulate':
         return simulateBytecode(task.payload)
+      case 'transaction':
+        return runTransaction(task.payload)
       case 'probe':
         return describeCapabilities()
       default: {

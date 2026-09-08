@@ -8,7 +8,8 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import {
   SERVER_NAME,
   TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_RUN_EVM_BYTECODE,
+  TOOL_RUN_BYTECODE,
+  TOOL_RUN_TRANSACTION,
 } from '../server/constants.js'
 import { EXCHANGE_AMSTERDAM_BYTECODE, extractTextContent, readEngineLabInput } from './helpers.js'
 
@@ -29,13 +30,17 @@ describe('MCP gateway (stdio integration)', () => {
     const names = tools.map((tool) => tool.name)
 
     expect(names).toContain(TOOL_DESCRIBE_CAPABILITIES)
-    expect(names).toContain(TOOL_RUN_EVM_BYTECODE)
-    expect(names).toHaveLength(2)
+    expect(names).toContain(TOOL_RUN_BYTECODE)
+    expect(names).toContain(TOOL_RUN_TRANSACTION)
+    expect(names).toHaveLength(3)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
       /Probe what this Feel Your Protocol MCP server supports/i,
     )
-    expect(tools.find((tool) => tool.name === TOOL_RUN_EVM_BYTECODE)?.description).toMatch(
+    expect(tools.find((tool) => tool.name === TOOL_RUN_BYTECODE)?.description).toMatch(
       /Run caller-supplied raw EVM bytecode/i,
+    )
+    expect(tools.find((tool) => tool.name === TOOL_RUN_TRANSACTION)?.description).toMatch(
+      /value-bearing Ethereum transaction/i,
     )
   })
 
@@ -60,6 +65,7 @@ describe('MCP gateway (stdio integration)', () => {
         runnable?: boolean
         opcodes?: { name: string }[]
         summary?: string
+        shapes?: string[]
         comparison?: { baselineForkId: string; previewForkId: string }
       }[]
       ceilings: { maxGasLimit: string }
@@ -74,7 +80,8 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
     expect(amsterdam?.aliases).toContain('glamsterdam')
-    expect(payload.eips).toHaveLength(4)
+    expect(payload.eips).toHaveLength(5)
+    expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
     const e8024 = payload.eips.find((e) => e.eip === 8024)
     expect(e8024?.runnable).toBe(true)
     expect(e8024?.summary).toMatch(/Amsterdam/)
@@ -83,17 +90,20 @@ describe('MCP gateway (stdio integration)', () => {
     const e7708 = payload.eips.find((e) => e.eip === 7708)
     expect(e7708?.runnable).toBe(true)
     expect(e7708?.comparison?.previewForkId).toBe('amsterdam')
+    expect(payload.eips.find((e) => e.eip === 8037)?.shapes).toEqual(
+      expect.arrayContaining(['transaction']),
+    )
     expect(payload.eips.some((e) => e.eip === 7883)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 7951)).toBe(true)
     expect(BigInt(payload.ceilings.maxGasLimit)).toBe(30_000_000n)
   })
 
-  it('runs PUSH1 STOP via run_evm_bytecode', async () => {
+  it('runs PUSH1 STOP via run_bytecode', async () => {
     client = await connectClient()
     const input = readEngineLabInput('simulate', '01-push1-stop')
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: { ...input },
       },
       CallToolResultSchema,
@@ -123,7 +133,7 @@ describe('MCP gateway (stdio integration)', () => {
     const input = readEngineLabInput('simulate', '02-dupn-amsterdam')
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: {
           ...input,
           fork: { baseHardfork: 'osaka', eips: [] },
@@ -146,12 +156,12 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.provenance.stabilityRollup).toBe('firm')
   })
 
-  it('runs DUPN amsterdam via run_evm_bytecode', async () => {
+  it('runs DUPN amsterdam via run_bytecode', async () => {
     client = await connectClient()
     const input = readEngineLabInput('simulate', '02-dupn-amsterdam')
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: { ...input },
       },
       CallToolResultSchema,
@@ -170,11 +180,11 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.steps?.some((step) => step.op === 'DUPN')).toBe(true)
   })
 
-  it('returns MCP error for invalid run_evm_bytecode input', async () => {
+  it('returns MCP error for invalid run_bytecode input', async () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: { bytecode: '' },
       },
       CallToolResultSchema,
@@ -188,7 +198,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: {
           bytecode: EXCHANGE_AMSTERDAM_BYTECODE,
           fork: { baseHardfork: 'amsterdam', eips: [] },
@@ -220,7 +230,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: {
           bytecode: '0x600100',
           fork: { baseHardfork: 'not-a-real-fork', eips: [] },
@@ -237,7 +247,7 @@ describe('MCP gateway (stdio integration)', () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_RUN_EVM_BYTECODE,
+        name: TOOL_RUN_BYTECODE,
         arguments: {
           bytecode: '0x600160026003e68000',
           fork: { baseHardfork: 'amsterdam', eips: [] },
@@ -257,6 +267,36 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.success).toBe(false)
     expect(payload.error).toMatch(/stack/i)
     expect(payload.provenance.engineVersion).toBe('0.1.0')
+  })
+
+  it('runs a first-touch value transfer via run_transaction', async () => {
+    client = await connectClient()
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_TRANSACTION,
+        arguments: {
+          from: '0x00000000000000000000000000000000000000ee',
+          to: '0x00000000000000000000000000000000000000aa',
+          value: '1',
+          fork: { baseHardfork: 'amsterdam' },
+        },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      gasUsed: string
+      gasUsedScope: string
+      txStateGas?: string
+    }
+
+    expect(payload.success).toBe(true)
+    expect(payload.gasUsedScope).toBe('transaction')
+    expect(payload.gasUsed).toBe('204600')
+    expect(payload.txStateGas).toBe('183600')
   })
 })
 

@@ -27,7 +27,8 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | MCP tool | Shape | Status |
 | --- | --- | --- |
 | `describe_capabilities` | probe | Shipped (stdio) |
-| `run_evm_bytecode` | run | Shipped (stdio) |
+| `run_bytecode` | simulate | Shipped (stdio) |
+| `run_transaction` | transaction | Shipped (stdio) |
 
 ## Local development
 
@@ -68,7 +69,7 @@ Build first (`npm run build`). Use an absolute path to `dist/index.js`.
 On startup the server logs to **stderr** (visible in MCP logs):
 
 ```
-[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_evm_bytecode
+[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_bytecode, run_transaction
 ```
 
 If you only see one tool in that line, the running binary is stale.
@@ -78,7 +79,8 @@ If you only see one tool in that line, the running binary is stale.
 Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feelyourprotocol.org)):
 
 - [`schemas/describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
-- [`schemas/run_evm_bytecode.input.json`](./schemas/run_evm_bytecode.input.json)
+- [`schemas/run_bytecode.input.json`](./schemas/run_bytecode.input.json)
+- [`schemas/run_transaction.input.json`](./schemas/run_transaction.input.json)
 
 ## License
 
