@@ -7,20 +7,21 @@ alwaysApply: true
 
 ## Few generic tools
 
-- Tools are **verbs** (probe, simulate, transaction, later generate), not per-EIP endpoints
+- Tools are **verbs** (probe, simulate, transaction, block, later generate), not per-EIP endpoints
 - Do not add `simulate_eip8024` or similar — EIP modules live in the engine catalog
 - New query shape → one new generic tool + engine function
 
 ## Descriptions are the prompt
 
-- Tool `description` strings must mention Amsterdam, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction`)
+- Tool `description` strings must mention Amsterdam, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block`)
 - `describe_capabilities`: probe first — forks, runnable modules, opcodes/encoding, shapes
 - `run_bytecode`: opcodes / precompiles / traces; point at probe; no demo programs
 - `run_transaction`: paid tx gas, receipts, wallet gasLimit; point at probe
+- `run_block`: 1–8 txs as a lab block, optional header slot/number/timestamp; not BAL
 
 ## Probe-first for runtime agents
 
-- Human and runtime agents should call `describe_capabilities` before `run_bytecode` or `run_transaction`
+- Human and runtime agents should call `describe_capabilities` before `run_bytecode`, `run_transaction`, or `run_block`
 - Live `describeCapabilities()` is authoritative — not stale markdown in the repo
 
 ## After gateway changes

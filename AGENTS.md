@@ -29,6 +29,7 @@ Agent → mcp-gateway (this repo) → mcp-execution-engine → EthereumJS
 | `describe_capabilities` | `describeCapabilities()` |
 | `run_bytecode` | `simulateBytecode()` |
 | `run_transaction` | `runTransaction()` |
+| `run_block` | `runBlock()` |
 
 Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`). EIP coverage is advertised via tool descriptions + live probe output.
 

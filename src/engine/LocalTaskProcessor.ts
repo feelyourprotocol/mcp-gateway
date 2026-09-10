@@ -1,5 +1,6 @@
 import {
   describeCapabilities,
+  runBlock,
   runTransaction,
   simulateBytecode,
 } from '@feelyourprotocol/mcp-execution-engine'
@@ -13,6 +14,8 @@ export class LocalTaskProcessor implements TaskProcessor {
         return simulateBytecode(task.payload)
       case 'transaction':
         return runTransaction(task.payload)
+      case 'block':
+        return runBlock(task.payload)
       case 'probe':
         return describeCapabilities()
       default: {

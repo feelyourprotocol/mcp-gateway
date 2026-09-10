@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { ENGINE_CEILINGS, EngineError } from '@feelyourprotocol/mcp-execution-engine'
+import {
+  ENGINE_CEILINGS,
+  EngineError,
+  type RunBlockInput,
+} from '@feelyourprotocol/mcp-execution-engine'
 
 import { LocalTaskProcessor } from '../engine/LocalTaskProcessor.js'
 import { readEngineLabInput } from './helpers.js'
@@ -99,5 +103,21 @@ describe('LocalTaskProcessor', () => {
     expect(result.success).toBe(true)
     expect(result.gasUsedScope).toBe('transaction')
     expect(result.gasUsed).toBe('204600')
+  })
+
+  it('block runs a first-touch transfer on Amsterdam', async () => {
+    const input = readEngineLabInput<RunBlockInput>('block', '01-first-touch')
+    const result = (await processor.submit({
+      kind: 'block',
+      payload: input,
+    })) as {
+      success: boolean
+      gasUsedScope: string
+      transactions: { gasUsed: string }[]
+    }
+
+    expect(result.success).toBe(true)
+    expect(result.gasUsedScope).toBe('block')
+    expect(result.transactions[0]?.gasUsed).toBe('204600')
   })
 })
