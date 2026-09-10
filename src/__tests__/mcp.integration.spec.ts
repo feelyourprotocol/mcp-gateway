@@ -8,6 +8,7 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import {
   SERVER_NAME,
   TOOL_DESCRIBE_CAPABILITIES,
+  TOOL_RUN_BLOCK,
   TOOL_RUN_BYTECODE,
   TOOL_RUN_TRANSACTION,
 } from '../server/constants.js'
@@ -32,7 +33,8 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_DESCRIBE_CAPABILITIES)
     expect(names).toContain(TOOL_RUN_BYTECODE)
     expect(names).toContain(TOOL_RUN_TRANSACTION)
-    expect(names).toHaveLength(3)
+    expect(names).toContain(TOOL_RUN_BLOCK)
+    expect(names).toHaveLength(4)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
       /Probe what this Feel Your Protocol MCP server supports/i,
     )
@@ -41,6 +43,9 @@ describe('MCP gateway (stdio integration)', () => {
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_TRANSACTION)?.description).toMatch(
       /value-bearing Ethereum transaction/i,
+    )
+    expect(tools.find((tool) => tool.name === TOOL_RUN_BLOCK)?.description).toMatch(
+      /1–8 impersonated Ethereum transactions as one lab block/i,
     )
   })
 
@@ -80,8 +85,13 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
     expect(amsterdam?.aliases).toContain('glamsterdam')
-    expect(payload.eips).toHaveLength(5)
+    expect(payload.eips).toHaveLength(6)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
+    expect(payload.eips.some((e) => e.eip === 7843)).toBe(true)
+    const e7843 = payload.eips.find((e) => e.eip === 7843)
+    expect(e7843?.runnable).toBe(true)
+    expect(e7843?.shapes).toEqual(['block'])
+    expect(e7843?.opcodes?.some((op) => op.name === 'SLOTNUM')).toBe(true)
     const e8024 = payload.eips.find((e) => e.eip === 8024)
     expect(e8024?.runnable).toBe(true)
     expect(e8024?.summary).toMatch(/Amsterdam/)
@@ -297,6 +307,48 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.gasUsedScope).toBe('transaction')
     expect(payload.gasUsed).toBe('204600')
     expect(payload.txStateGas).toBe('183600')
+  })
+
+  it('runs a first-touch value transfer via run_block', async () => {
+    client = await connectClient()
+    const input = readEngineLabInput('block', '01-first-touch')
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_BLOCK,
+        arguments: { ...input },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      gasUsedScope: string
+      header: { number: string; gasUsed: string }
+      transactions: { gasUsed: string; txStateGas?: string }[]
+    }
+
+    expect(payload.success).toBe(true)
+    expect(payload.gasUsedScope).toBe('block')
+    expect(payload.header.number).toBe('1')
+    expect(payload.transactions).toHaveLength(1)
+    expect(payload.transactions[0]?.gasUsed).toBe('204600')
+    expect(payload.transactions[0]?.txStateGas).toBe('183600')
+  })
+
+  it('returns MCP error for an empty run_block transaction list', async () => {
+    client = await connectClient()
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_BLOCK,
+        arguments: { transactions: [] },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).toBe(true)
+    expect(extractTextContent(result)).toMatch(/transaction/i)
   })
 })
 

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { parseRunBlockInput, runBlockInputSchema } from '../schemas/runBlock.schema.js'
 import { parseRunBytecodeInput, runBytecodeInputSchema } from '../schemas/runBytecode.schema.js'
 import {
   parseRunTransactionInput,
@@ -89,6 +90,61 @@ describe('runTransactionInputSchema', () => {
       runTransactionInputSchema.parse({
         from: '0x00000000000000000000000000000000000000ee',
         to: '0x00000000000000000000000000000000000000aa',
+        extra: true,
+      }),
+    ).toThrow()
+  })
+})
+
+describe('runBlockInputSchema', () => {
+  it('requires at least one transaction', () => {
+    expect(() => runBlockInputSchema.parse({})).toThrow()
+    expect(() => runBlockInputSchema.parse({ transactions: [] })).toThrow()
+  })
+
+  it('accepts a one-tx lab block', () => {
+    const parsed = parseRunBlockInput({
+      transactions: [
+        {
+          from: '0x00000000000000000000000000000000000000ee',
+          to: '0x00000000000000000000000000000000000000aa',
+          value: '1',
+        },
+      ],
+    })
+    expect(parsed.transactions).toHaveLength(1)
+  })
+
+  it('accepts an optional header slot', () => {
+    const parsed = parseRunBlockInput({
+      transactions: [
+        {
+          from: '0x00000000000000000000000000000000000000ee',
+          to: '0x00000000000000000000000000000000000000aa',
+        },
+      ],
+      header: { slotNumber: '42' },
+    })
+    expect(parsed.header?.slotNumber).toBe('42')
+  })
+
+  it('rejects more than eight transactions', () => {
+    const transactions = Array.from({ length: 9 }, () => ({
+      from: '0x00000000000000000000000000000000000000ee',
+      to: '0x00000000000000000000000000000000000000aa',
+    }))
+    expect(() => runBlockInputSchema.parse({ transactions })).toThrow()
+  })
+
+  it('rejects unknown top-level fields', () => {
+    expect(() =>
+      runBlockInputSchema.parse({
+        transactions: [
+          {
+            from: '0x00000000000000000000000000000000000000ee',
+            to: '0x00000000000000000000000000000000000000aa',
+          },
+        ],
         extra: true,
       }),
     ).toThrow()
