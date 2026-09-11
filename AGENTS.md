@@ -2,7 +2,7 @@
 
 Tool-agnostic entrypoint for coding agents working in **`mcp-gateway`**.
 
-**Read this file first.** Then load [`.cursor/rules/mcp-surface.mdc`](.cursor/rules/mcp-surface.mdc).
+**Read this file first.** Then load [`.cursor/rules/`](.cursor/rules/) — `mcp-surface.mdc`, `git.mdc` (defers to the website git rule).
 
 Depends one-way on [`mcp-execution-engine`](../mcp-execution-engine/) via `LocalTaskProcessor`. Human docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org/use/introduction.html).
 
@@ -64,4 +64,3 @@ Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`). EIP coverage is adve
 
 - Rebuild after changes: `npm run build` — Cursor must restart MCP server to pick up tools
 - Finish with `npm run typecheck`, `npm run test:ci`, `npm run lf:ci`
-- Do not commit unless asked
