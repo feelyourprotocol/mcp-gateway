@@ -12,7 +12,7 @@ MCP server gateway for [Feel Your Protocol](https://feelyourprotocol.org) — ex
 Agent (Cursor, Claude Desktop, …)
   → MCP stdio transport
     → mcp-gateway (tools + TaskProcessor)
-      → mcp-execution-engine (stateless EthereumJS)
+      → mcp-execution-engine (isolated EthereumJS lab)
 ```
 
 | Layer | This repo | Role |

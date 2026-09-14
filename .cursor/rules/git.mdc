@@ -1,0 +1,13 @@
+---
+description: Git habits — follow the website git.mdc (canonical)
+alwaysApply: true
+---
+
+# Git
+
+**Source of truth** is the website rule, not this file:
+
+- Sibling checkout: [`../website/.cursor/rules/git.mdc`](../website/.cursor/rules/git.mdc)
+- Remote: [feelyourprotocol/website `.cursor/rules/git.mdc`](https://github.com/feelyourprotocol/website/blob/main/.cursor/rules/git.mdc)
+
+Read that file and follow it in this repo (when to commit, message style). Do not add a second habit list here.

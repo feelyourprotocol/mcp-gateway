@@ -15,8 +15,8 @@ alwaysApply: true
 
 - Tool `description` strings must mention Amsterdam, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block`)
 - `describe_capabilities`: probe first — forks, runnable modules, opcodes/encoding, shapes
-- `run_bytecode`: opcodes / precompiles / traces; point at probe; no demo programs
-- `run_transaction`: paid tx gas, receipts, wallet gasLimit; point at probe
+- `run_bytecode`: opcodes / precompiles / traces / program-gas SSTORE; optional accounts prestate; point at probe; no demo programs
+- `run_transaction`: paid tx gas, receipts, wallet gasLimit, txStateGas; point at probe
 - `run_block`: 1–8 txs as a lab block, optional header slot/number/timestamp; not BAL
 
 ## Probe-first for runtime agents
