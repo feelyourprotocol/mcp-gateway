@@ -51,6 +51,19 @@ describe('runBytecodeInputSchema', () => {
     expect(parsed.trace).toBe(true)
   })
 
+  it('accepts accounts storage on the lab execution address', () => {
+    const parsed = parseRunBytecodeInput({
+      bytecode: '0x600760035500',
+      accounts: [
+        {
+          address: '0x00000000000000000000000000000000000000b1',
+          storage: [{ slot: '0x03', value: '0x01' }],
+        },
+      ],
+    })
+    expect(parsed.accounts?.[0]?.storage?.[0]?.slot).toBe('0x03')
+  })
+
   it('rejects non-string gasLimit', () => {
     expect(() =>
       runBytecodeInputSchema.parse({
@@ -83,6 +96,20 @@ describe('runTransactionInputSchema', () => {
       value: '1',
     })
     expect(parsed.value).toBe('1')
+  })
+
+  it('accepts accounts storage slots', () => {
+    const parsed = parseRunTransactionInput({
+      from: '0x00000000000000000000000000000000000000ee',
+      to: '0x00000000000000000000000000000000000000aa',
+      accounts: [
+        {
+          address: '0x00000000000000000000000000000000000000aa',
+          storage: [{ slot: '0x03', value: '0x01' }],
+        },
+      ],
+    })
+    expect(parsed.accounts?.[0]?.storage?.[0]?.slot).toBe('0x03')
   })
 
   it('rejects unknown top-level fields', () => {

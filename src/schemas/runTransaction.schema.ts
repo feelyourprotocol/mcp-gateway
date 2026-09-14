@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import type { RunTransactionInput } from '@feelyourprotocol/mcp-execution-engine'
 
+import { accountSchema } from './account.schema.js'
+
 const forkSchema = z
   .object({
     baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
@@ -10,14 +12,6 @@ const forkSchema = z
       .describe('Optional à-la-carte EIP numbers to activate.'),
   })
   .describe('Fork capability set. Omit to use engine default (amsterdam).')
-
-const accountSchema = z
-  .object({
-    address: z.string().min(1).describe('Hex address.'),
-    balance: z.string().optional().describe('Balance in wei as decimal string.'),
-    code: z.string().optional().describe('Optional runtime bytecode at this address.'),
-  })
-  .strict()
 
 export const runTransactionInputShape = {
   from: z.string().min(1).describe('Hex sender address (impersonated — no private key).'),

@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import type { SimulateBytecodeInput } from '@feelyourprotocol/mcp-execution-engine'
 
+import { accountSchema } from './account.schema.js'
+
 const forkSchema = z
   .object({
     baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
@@ -16,6 +18,12 @@ export const runBytecodeInputShape = {
     .string()
     .min(1)
     .describe('Hex-encoded EVM bytecode (0x prefix optional). Max 24576 bytes.'),
+  accounts: z
+    .array(accountSchema)
+    .optional()
+    .describe(
+      'Optional prestate: code/balance/storage at other addresses, or storage on the lab execution account 0x00000000000000000000000000000000000000b1.',
+    ),
   fork: forkSchema.optional(),
   gasLimit: z
     .string()
