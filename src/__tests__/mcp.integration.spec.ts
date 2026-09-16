@@ -36,16 +36,16 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_RUN_BLOCK)
     expect(names).toHaveLength(4)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
-      /named forks as catalog capabilities/i,
+      /Berlin→Amsterdam lineage/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BYTECODE)?.description).toMatch(
-      /bytecode under Amsterdam with no EIP named/i,
+      /generic hardfork runs/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_TRANSACTION)?.description).toMatch(
-      /generic Amsterdam \/ Osaka transaction/i,
+      /any lineage fork/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BLOCK)?.description).toMatch(
-      /generic Amsterdam \/ Osaka lab block/i,
+      /any lineage fork/i,
     )
   })
 
@@ -86,9 +86,12 @@ describe('MCP gateway (stdio integration)', () => {
 
     expect(payload.engineVersion).toBe('0.1.0')
     expect(payload.baselineForkId).toBe('osaka')
-    expect(payload.namedForks.some((fork) => fork.id === 'osaka' && fork.role === 'baseline')).toBe(
+    expect(payload.namedForks.some((fork) => fork.id === 'osaka' && fork.role === 'current')).toBe(
       true,
     )
+    expect(
+      payload.namedForks.some((fork) => fork.id === 'paris' && fork.role === 'historical'),
+    ).toBe(true)
     expect(payload.namedForks.some((fork) => fork.id === 'prague')).toBe(true)
     expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
