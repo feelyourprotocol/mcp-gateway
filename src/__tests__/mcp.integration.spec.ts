@@ -105,7 +105,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(amsterdam?.plannedEips).toBeUndefined()
     expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
     expect(payload.eips).toHaveLength(9)
-    expect(payload.eips.some((e) => e.eip === 7702 && e.shapes.includes('transaction'))).toBe(true)
+    expect(payload.eips.some((e) => e.eip === 7702 && e.shapes?.includes('transaction'))).toBe(true)
     expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8038)).toBe(true)
