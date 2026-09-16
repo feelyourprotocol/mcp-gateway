@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { RunTransactionInput } from '@feelyourprotocol/mcp-execution-engine'
 
 import { accountSchema } from './account.schema.js'
+import { authorizationListItemSchema } from './authorization.schema.js'
 
 const forkSchema = z
   .object({
@@ -30,6 +31,12 @@ export const runTransactionInputShape = {
     .describe(
       'Transaction gas limit as decimal string. Default 1000000. Pass 21000 for the wallet-era simple-transfer limit.',
     ),
+  authorizationList: z
+    .array(authorizationListItemSchema)
+    .optional()
+    .describe(
+      'Signed EIP-7702 authorization JSON items — type-4 set-code tx on prague+. Validate with inspect authorization-list first.',
+    ),
 } as const
 
 export const runTransactionInputSchema = z.object(runTransactionInputShape).strict()
@@ -37,5 +44,5 @@ export const runTransactionInputSchema = z.object(runTransactionInputShape).stri
 export type RunTransactionToolInput = z.infer<typeof runTransactionInputSchema>
 
 export function parseRunTransactionInput(input: unknown): RunTransactionInput {
-  return runTransactionInputSchema.parse(input)
+  return runTransactionInputSchema.parse(input) as RunTransactionInput
 }

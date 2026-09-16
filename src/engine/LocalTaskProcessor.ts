@@ -1,5 +1,7 @@
 import {
   describeCapabilities,
+  generateArtifact,
+  inspectArtifact,
   runBlock,
   runTransaction,
   simulateBytecode,
@@ -16,6 +18,10 @@ export class LocalTaskProcessor implements TaskProcessor {
         return runTransaction(task.payload)
       case 'block':
         return runBlock(task.payload)
+      case 'generate':
+        return generateArtifact(task.payload)
+      case 'inspect':
+        return await inspectArtifact(task.payload)
       case 'probe':
         return describeCapabilities()
       default: {

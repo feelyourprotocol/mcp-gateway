@@ -121,6 +121,24 @@ describe('runTransactionInputSchema', () => {
       }),
     ).toThrow()
   })
+
+  it('accepts authorizationList for EIP-7702 runs', () => {
+    const parsed = parseRunTransactionInput({
+      from: '0x00000000000000000000000000000000000000ee',
+      to: '0x00000000000000000000000000000000000000aa',
+      authorizationList: [
+        {
+          chainId: '0x00',
+          address: '0x0000000000000000000000000000000000000b1',
+          nonce: '0x00',
+          yParity: '0x00',
+          r: '0x01',
+          s: '0x02',
+        },
+      ],
+    })
+    expect(parsed.authorizationList?.length).toBe(1)
+  })
 })
 
 describe('runBlockInputSchema', () => {
