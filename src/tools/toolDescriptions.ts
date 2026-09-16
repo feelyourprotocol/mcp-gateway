@@ -70,8 +70,8 @@ export const GENERATE_DESCRIPTION = [
 ].join(' ')
 
 export const INSPECT_DESCRIPTION = [
-  'Judge a caller-supplied structured artifact without chain state (encoding, canonical structure, optional hash).',
-  'kind block-access-list (EIP-7928): pass BAL JSON array or RLP hex; optional blockGasLimit for item cap; optional expectedHash for hash match.',
-  'Returns wellFormed, structureOk, hashMatch, itemCapOk, errors[], computedHash — not consensus replay against mainnet.',
-  'Use after generate or on external BAL payloads. Call describe_capabilities for inspectKinds.',
+  'Judge a caller-supplied structured artifact without chain state (encoding, structure, optional hash).',
+  'Kinds (see inspectKinds): block-access-list (7928 BAL), authorization-list (7702 tuple JSON), typed-transaction (2718 RLP hex), withdrawals (4895 JSON + withdrawalsRoot), execution-requests (7685 envelopes + requestsHash).',
+  'Returns wellFormed, structureOk, hashMatch, errors[], computedHash, optional details — not consensus replay against mainnet or full blob/KZG sidecars.',
+  'Call describe_capabilities for inspectKinds before use.',
 ].join(' ')

@@ -21,7 +21,7 @@ export class LocalTaskProcessor implements TaskProcessor {
       case 'generate':
         return generateArtifact(task.payload)
       case 'inspect':
-        return inspectArtifact(task.payload)
+        return await inspectArtifact(task.payload)
       case 'probe':
         return describeCapabilities()
       default: {
