@@ -8,6 +8,8 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import {
   SERVER_NAME,
   TOOL_DESCRIBE_CAPABILITIES,
+  TOOL_GENERATE,
+  TOOL_INSPECT,
   TOOL_RUN_BLOCK,
   TOOL_RUN_BYTECODE,
   TOOL_RUN_TRANSACTION,
@@ -34,7 +36,9 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_RUN_BYTECODE)
     expect(names).toContain(TOOL_RUN_TRANSACTION)
     expect(names).toContain(TOOL_RUN_BLOCK)
-    expect(names).toHaveLength(4)
+    expect(names).toContain(TOOL_GENERATE)
+    expect(names).toContain(TOOL_INSPECT)
+    expect(names).toHaveLength(6)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
       /Berlin→Amsterdam lineage/i,
     )
@@ -97,10 +101,11 @@ describe('MCP gateway (stdio integration)', () => {
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
     expect(amsterdam?.aliases).toContain('glamsterdam')
     expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
-    expect(amsterdam?.relatedEips).toEqual([7708, 7843, 8024, 8037, 8038])
-    expect(amsterdam?.plannedEips).toEqual([7928])
+    expect(amsterdam?.relatedEips).toEqual([7708, 7843, 7928, 8024, 8037, 8038])
+    expect(amsterdam?.plannedEips).toBeUndefined()
     expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
-    expect(payload.eips).toHaveLength(7)
+    expect(payload.eips).toHaveLength(8)
+    expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8038)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 7843)).toBe(true)
@@ -155,7 +160,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.provenance.forkConfig.baseHardfork).toBe('amsterdam')
     expect(payload.provenance.forkConfig.eips).toEqual([])
     expect(payload.provenance.perEip?.map((entry) => entry.eip)).toEqual([
-      7708, 7843, 8024, 8037, 8038,
+      7708, 7843, 7928, 8024, 8037, 8038,
     ])
     expect(payload.provenance.caveat).toMatch(/advertised modules/)
     expect(payload.steps?.[0]?.op).toBe('PUSH1')
@@ -358,6 +363,44 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.transactions).toHaveLength(1)
     expect(payload.transactions[0]?.gasUsed).toBe('204600')
     expect(payload.transactions[0]?.txStateGas).toBe('183600')
+  })
+
+  it('generates BAL JSON on Amsterdam via generate', async () => {
+    client = await connectClient()
+    const result = await client.callTool(
+      {
+        name: TOOL_GENERATE,
+        arguments: {
+          fork: { baseHardfork: 'amsterdam' },
+          transactions: [
+            {
+              from: '0xb6e610921b0a0f6f608c0e1f29a845552bc6db2c',
+              to: '0x16abcdab9880c2d58230998de45c493c478dc0d8',
+              value: '1',
+            },
+          ],
+          accounts: [
+            {
+              address: '0xb6e610921b0a0f6f608c0e1f29a845552bc6db2c',
+              balance: '1000000000000000000',
+            },
+          ],
+        },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      artifactKind: string
+      hash: string
+      bal: unknown[]
+    }
+    expect(payload.success).toBe(true)
+    expect(payload.artifactKind).toBe('block-access-list')
+    expect(payload.hash).toMatch(/^0x/i)
+    expect(payload.bal.length).toBeGreaterThan(0)
   })
 
   it('returns MCP error for an empty run_block transaction list', async () => {

@@ -8,11 +8,12 @@ export const DESCRIBE_CAPABILITIES_DESCRIPTION = [
   'eipIntroductions (when each EIP activated — use with predecessor compares),',
   'and registered runnable EIP modules (encoding rules, derived comparison pairs, shapes).',
   'Compare pattern: lookup eipIntroductions → run twice on predecessorFork(introducedAt) vs introducedAt.',
-  'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, or run_block;',
-  'EIP twins (8024, 7843, 7708, 8037, 8038 on Amsterdam; 7883 ModExp and 7951 P-256 on Osaka).',
+  'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate, inspect;',
+  'EIP twins (8024, 7843, 7708, 7928 BAL, 8037, 8038 on Amsterdam; 7883 ModExp and 7951 P-256 on Osaka).',
+  'inspectKinds lists structures inspect accepts (block-access-list first).',
   'Does not list unimplemented EIPs and does not ship demo programs — callers supply bytecode or transaction fields.',
   'Call this first for support questions (when did PUSH0 appear? which fork before ModExp repricing? is Amsterdam available?).',
-  'Then use run_bytecode, run_transaction, or run_block. Default fork is amsterdam (preview).',
+  'Then use run_bytecode, run_transaction, run_block, generate, or inspect. Default fork is amsterdam (preview).',
 ].join(' ')
 
 export const RUN_BYTECODE_DESCRIPTION = [
@@ -55,7 +56,22 @@ export const RUN_BLOCK_DESCRIPTION = [
   'Use when the question needs a header slot (EIP-7843 SLOTNUM), several txs in one block, a header timestamp/number,',
   'or a generic lab block on any lineage fork.',
   'Optional header.slotNumber is Amsterdam only. Paid gas of a single transfer still belongs on run_transaction.',
-  'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not expect BAL JSON (still planned generate).',
+  'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not use for BAL JSON — use generate.',
   'Default fork is amsterdam (preview). Use osaka or predecessor forks for baseline or historical compares.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
+].join(' ')
+
+export const GENERATE_DESCRIPTION = [
+  'Derive structured protocol artifacts from a lab block run (same inputs as run_block: 1–8 txs, accounts, optional header).',
+  'Default kind block-access-list (EIP-7928): returns BAL JSON, keccak256(RLP) hash, itemCount vs gas item cap, header gasUsed, provenance.',
+  'Requires Amsterdam (EIP-7928). BYOS lab only — not verification of a mainnet block BAL without archive parent state.',
+  'Do not use run_block when the question is what the block commits to in the access list — use generate.',
+  'Call describe_capabilities first (EIP-7928 module, inspectKinds). Limits: max 8 transactions.',
+].join(' ')
+
+export const INSPECT_DESCRIPTION = [
+  'Judge a caller-supplied structured artifact without chain state (encoding, canonical structure, optional hash).',
+  'kind block-access-list (EIP-7928): pass BAL JSON array or RLP hex; optional blockGasLimit for item cap; optional expectedHash for hash match.',
+  'Returns wellFormed, structureOk, hashMatch, itemCapOk, errors[], computedHash — not consensus replay against mainnet.',
+  'Use after generate or on external BAL payloads. Call describe_capabilities for inspectKinds.',
 ].join(' ')

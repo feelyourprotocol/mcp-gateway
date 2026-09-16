@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## Few generic tools
 
-- Tools are **verbs** (probe, simulate, transaction, block, later generate), not per-EIP or per-fork endpoints
+- Tools are **verbs** (probe, simulate, transaction, block, generate, inspect), not per-EIP or per-fork endpoints
 - Do not add `simulate_eip8024` or `run_amsterdam` — EIP modules and named forks live in the engine catalog
 - New query shape → one new generic tool + engine function
 
@@ -18,7 +18,9 @@ alwaysApply: true
 - `describe_capabilities`: probe first — named forks as capabilities, runnable modules, opcodes/encoding, shapes
 - `run_bytecode`: generic bytecode under a fork; opcodes / precompiles / traces / program-gas SSTORE; optional accounts prestate; point at probe; no demo programs
 - `run_transaction`: generic paid tx under a fork; receipts, wallet gasLimit, txStateGas; point at probe
-- `run_block`: 1–8 txs as a lab block, optional header slot/number/timestamp; not BAL
+- `run_block`: 1–8 txs as a lab block, optional header slot/number/timestamp; not BAL JSON
+- `generate`: derive lab artifacts (BAL first) — same inputs as run_block
+- `inspect`: judge caller-supplied structures (BAL JSON/RLP) without chain state
 
 ## Probe-first for runtime agents
 

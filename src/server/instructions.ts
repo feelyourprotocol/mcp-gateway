@@ -12,7 +12,7 @@ export const SERVER_INSTRUCTIONS = [
   'and on introducedAt (examples: EIP-1559 — Berlin then London; PUSH0 — Paris then Shanghai).',
   'Then run_bytecode (opcodes / precompiles / program gas),',
   'run_transaction (paid tx / receipts / wallet gasLimit),',
-  'or run_block (1–8 txs / header slot).',
+  'run_block (1–8 txs / header slot), generate (lab BAL and later artifacts), or inspect (structure/hash without chain state).',
   'Omit fork to use Amsterdam. Osaka (mainnet-el) is baselineForkId for today vs preview.',
   'Callers supply bytecode or transaction fields; this server does not ship demo programs.',
 ].join(' ')
