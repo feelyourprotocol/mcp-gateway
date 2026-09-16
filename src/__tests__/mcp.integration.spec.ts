@@ -36,16 +36,16 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_RUN_BLOCK)
     expect(names).toHaveLength(4)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
-      /Probe what this Feel Your Protocol MCP server supports/i,
+      /named forks as catalog capabilities/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BYTECODE)?.description).toMatch(
-      /Run caller-supplied raw EVM bytecode/i,
+      /bytecode under Amsterdam with no EIP named/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_TRANSACTION)?.description).toMatch(
-      /value-bearing Ethereum transaction/i,
+      /generic Amsterdam \/ Osaka transaction/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BLOCK)?.description).toMatch(
-      /1–8 impersonated Ethereum transactions as one lab block/i,
+      /generic Amsterdam \/ Osaka lab block/i,
     )
   })
 
@@ -64,7 +64,15 @@ describe('MCP gateway (stdio integration)', () => {
     const payload = JSON.parse(extractTextContent(result)) as {
       engineVersion: string
       baselineForkId: string
-      namedForks: { id: string; role?: string; aliases?: string[] }[]
+      namedForks: {
+        id: string
+        role?: string
+        aliases?: string[]
+        summary?: string
+        relatedEips?: number[]
+        plannedEips?: number[]
+        shapes?: string[]
+      }[]
       eips: {
         eip: number
         runnable?: boolean
@@ -85,6 +93,10 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
     expect(amsterdam?.aliases).toContain('glamsterdam')
+    expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
+    expect(amsterdam?.relatedEips).toEqual([7708, 7843, 8024, 8037, 8038])
+    expect(amsterdam?.plannedEips).toEqual([7928])
+    expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
     expect(payload.eips).toHaveLength(7)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8038)).toBe(true)
@@ -127,7 +139,9 @@ describe('MCP gateway (stdio integration)', () => {
       gasUsed: string
       provenance: {
         engineVersion: string
-        forkConfig: { baseHardfork: string }
+        forkConfig: { baseHardfork: string; eips?: number[] }
+        perEip?: { eip: number }[]
+        caveat?: string
       }
       steps?: { op: string }[]
     }
@@ -136,6 +150,11 @@ describe('MCP gateway (stdio integration)', () => {
     expect(BigInt(payload.gasUsed)).toBeGreaterThan(0n)
     expect(payload.provenance.engineVersion).toBe('0.1.0')
     expect(payload.provenance.forkConfig.baseHardfork).toBe('amsterdam')
+    expect(payload.provenance.forkConfig.eips).toEqual([])
+    expect(payload.provenance.perEip?.map((entry) => entry.eip)).toEqual([
+      7708, 7843, 8024, 8037, 8038,
+    ])
+    expect(payload.provenance.caveat).toMatch(/advertised modules/)
     expect(payload.steps?.[0]?.op).toBe('PUSH1')
   })
 
@@ -366,6 +385,7 @@ async function connectClient(): Promise<Client> {
 
   const serverInfo = nextClient.getServerVersion()
   expect(serverInfo?.name).toBe(SERVER_NAME)
+  expect(nextClient.getInstructions()).toMatch(/even if they do not name an EIP/i)
 
   return nextClient
 }

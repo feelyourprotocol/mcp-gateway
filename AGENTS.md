@@ -19,6 +19,7 @@ Agent → mcp-gateway (this repo) → mcp-execution-engine → EthereumJS
 | Constant | Value | Notes |
 | --- | --- | --- |
 | `SERVER_NAME` | `FeelYourProtocol` | MCP handshake `name` — product id, not `-EVM` (server scope is broader than EVM) |
+| `instructions` | `SERVER_INSTRUCTIONS` | Handshake routing: generic hardfork runs (Amsterdam default) without an EIP |
 | Config key (docs) | `feel-your-protocol` | User-chosen in `mcp.json`; kebab-case |
 | CLI / logs | `fyp-mcp` | Bin and stderr prefix |
 
@@ -31,7 +32,7 @@ Agent → mcp-gateway (this repo) → mcp-execution-engine → EthereumJS
 | `run_transaction` | `runTransaction()` |
 | `run_block` | `runBlock()` |
 
-Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`). EIP coverage is advertised via tool descriptions + live probe output.
+Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`) or per-fork tools (e.g. `run_amsterdam`). EIP and named-fork coverage is advertised via server instructions, tool descriptions, and live probe output.
 
 ## Repo layout
 
