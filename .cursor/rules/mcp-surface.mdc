@@ -13,8 +13,8 @@ alwaysApply: true
 
 ## Descriptions are the prompt
 
-- Server `instructions` must claim generic hardfork prompts (run under Amsterdam / Osaka / Prague with no EIP named)
-- Tool `description` strings must mention Amsterdam, generic fork runs, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block`)
+- Server `instructions` must claim generic hardfork prompts (run under Glamsterdam / Fusaka / Pectra with no EIP named)
+- Tool `description` strings must mention Glamsterdam, generic fork runs, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block`)
 - `describe_capabilities`: probe first — named forks as capabilities, runnable modules, opcodes/encoding, shapes
 - `run_bytecode`: generic bytecode under a fork; opcodes / precompiles / traces / program-gas SSTORE; optional accounts prestate; point at probe; no demo programs
 - `run_transaction`: generic paid tx under a fork; receipts, wallet gasLimit, txStateGas; point at probe

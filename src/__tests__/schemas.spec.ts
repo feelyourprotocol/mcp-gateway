@@ -42,12 +42,12 @@ describe('runBytecodeInputSchema', () => {
   it('accepts full lab-shaped input', () => {
     const parsed = parseRunBytecodeInput({
       bytecode: '0x600100',
-      fork: { baseHardfork: 'amsterdam', eips: [] },
+      fork: { baseHardfork: 'glamsterdam', eips: [] },
       gasLimit: '1000000',
       trace: true,
     })
 
-    expect(parsed.fork?.baseHardfork).toBe('amsterdam')
+    expect(parsed.fork?.baseHardfork).toBe('glamsterdam')
     expect(parsed.trace).toBe(true)
   })
 

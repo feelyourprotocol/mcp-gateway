@@ -20,13 +20,13 @@ describe('LocalTaskProcessor', () => {
     }
 
     expect(result.engineVersion).toBe('0.1.0')
-    expect(result.baselineForkId).toBe('osaka')
-    expect(result.namedForks.some((fork) => fork.id === 'prague')).toBe(true)
-    expect(result.namedForks.some((fork) => fork.id === 'osaka')).toBe(true)
-    expect(result.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
-    expect(result.eips).toHaveLength(9)
+    expect(result.baselineForkId).toBe('fusaka')
+    expect(result.namedForks.some((fork) => fork.id === 'pectra')).toBe(true)
+    expect(result.namedForks.some((fork) => fork.id === 'fusaka')).toBe(true)
+    expect(result.namedForks.some((fork) => fork.id === 'glamsterdam')).toBe(true)
+    expect(result.eips).toHaveLength(8)
     expect(result.eips.map((e) => e.eip).sort()).toEqual([
-      7702, 7708, 7843, 7883, 7928, 7951, 8024, 8037, 8038,
+      7708, 7843, 7883, 7928, 7951, 8024, 8037, 8038,
     ])
   })
 
@@ -70,7 +70,7 @@ describe('LocalTaskProcessor', () => {
     await expect(
       processor.submit({
         kind: 'simulate',
-        payload: { bytecode: huge, fork: { baseHardfork: 'amsterdam' } },
+        payload: { bytecode: huge, fork: { baseHardfork: 'glamsterdam' } },
       }),
     ).rejects.toThrow(EngineError)
   })
@@ -87,14 +87,14 @@ describe('LocalTaskProcessor', () => {
     ).rejects.toThrow(EngineError)
   })
 
-  it('transaction runs a first-touch transfer on Amsterdam', async () => {
+  it('transaction runs a first-touch transfer on Glamsterdam', async () => {
     const result = (await processor.submit({
       kind: 'transaction',
       payload: {
         from: '0x00000000000000000000000000000000000000ee',
         to: '0x00000000000000000000000000000000000000aa',
         value: '1',
-        fork: { baseHardfork: 'amsterdam' },
+        fork: { baseHardfork: 'glamsterdam' },
       },
     })) as {
       success: boolean
@@ -107,7 +107,7 @@ describe('LocalTaskProcessor', () => {
     expect(result.gasUsed).toBe('204600')
   })
 
-  it('block runs a first-touch transfer on Amsterdam', async () => {
+  it('block runs a first-touch transfer on Glamsterdam', async () => {
     const input = readEngineLabInput<RunBlockInput>('block', '01-first-touch')
     const result = (await processor.submit({
       kind: 'block',

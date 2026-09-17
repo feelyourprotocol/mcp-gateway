@@ -1,13 +1,15 @@
 ---
-description: Git habits — follow the website git.mdc (canonical)
+description: FYP git traps — cwd, sandbox, sequential Touch ID, one-line messages
 alwaysApply: true
 ---
 
 # Git
 
-**Source of truth** is the website rule, not this file:
+Do **not** use the global HEREDOC-body / parallel-git commit playbook in this repo.
 
-- Sibling checkout: [`../website/.cursor/rules/git.mdc`](../website/.cursor/rules/git.mdc)
-- Remote: [feelyourprotocol/website `.cursor/rules/git.mdc`](https://github.com/feelyourprotocol/website/blob/main/.cursor/rules/git.mdc)
+1. `working_directory` = **this** repo root (`…/mcp-gateway`). Never `ethereumjs-monorepo`, never `feelyourprotocol/`.
+2. Every git command: `required_permissions: ["all"]`. An error about `packages/ethereum-tests/.git` means you ran git in the monorepo — re-run with 1+2.
+3. Commits, pushes, pulls, and `gh pr create` are **one shell at a time** (Touch ID). Never parallel signed git, even across FYP siblings.
+4. Commit message: **one line**, ~7–10 words, no `feat:` / `fix:`, **no body**.
 
-Read that file and follow it in this repo (when to commit, message style). Do not add a second habit list here.
+Full habits (when, scope, CI, PRs): sibling [`../website/.cursor/rules/git.mdc`](../website/.cursor/rules/git.mdc) (canonical). Do not fork a second long copy here.

@@ -5,13 +5,13 @@ import { accountSchema } from './account.schema.js'
 
 const forkSchema = z
   .object({
-    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
+    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. fusaka, glamsterdam).'),
     eips: z
       .array(z.number().int().positive())
       .optional()
       .describe('Optional à-la-carte EIP numbers to activate.'),
   })
-  .describe('Fork capability set. Omit to use engine default (amsterdam).')
+  .describe('Fork capability set. Omit to use engine default (glamsterdam).')
 
 export const runBytecodeInputShape = {
   bytecode: z

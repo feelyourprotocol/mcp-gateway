@@ -6,13 +6,13 @@ import { authorizationListItemSchema } from './authorization.schema.js'
 
 const forkSchema = z
   .object({
-    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
+    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. fusaka, glamsterdam).'),
     eips: z
       .array(z.number().int().positive())
       .optional()
       .describe('Optional à-la-carte EIP numbers to activate.'),
   })
-  .describe('Fork capability set. Omit to use engine default (amsterdam).')
+  .describe('Fork capability set. Omit to use engine default (glamsterdam).')
 
 export const runTransactionInputShape = {
   from: z.string().min(1).describe('Hex sender address (impersonated — no private key).'),
@@ -35,7 +35,7 @@ export const runTransactionInputShape = {
     .array(authorizationListItemSchema)
     .optional()
     .describe(
-      'Signed EIP-7702 authorization JSON items — type-4 set-code tx on prague+. Validate with inspect authorization-list first.',
+      'Signed EIP-7702 authorization JSON items — type-4 set-code tx on pectra+. Validate with inspect authorization-list first.',
     ),
 } as const
 

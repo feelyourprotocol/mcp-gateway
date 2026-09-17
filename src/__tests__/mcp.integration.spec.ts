@@ -40,7 +40,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_INSPECT)
     expect(names).toHaveLength(6)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
-      /Berlin→Amsterdam lineage/i,
+      /Berlin→Glamsterdam lineage/i,
     )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BYTECODE)?.description).toMatch(
       /generic hardfork runs/i,
@@ -89,23 +89,23 @@ describe('MCP gateway (stdio integration)', () => {
     }
 
     expect(payload.engineVersion).toBe('0.1.0')
-    expect(payload.baselineForkId).toBe('osaka')
-    expect(payload.namedForks.some((fork) => fork.id === 'osaka' && fork.role === 'current')).toBe(
+    expect(payload.baselineForkId).toBe('fusaka')
+    expect(payload.namedForks.some((fork) => fork.id === 'fusaka' && fork.role === 'current')).toBe(
       true,
     )
     expect(
       payload.namedForks.some((fork) => fork.id === 'paris' && fork.role === 'historical'),
     ).toBe(true)
-    expect(payload.namedForks.some((fork) => fork.id === 'prague')).toBe(true)
-    expect(payload.namedForks.some((fork) => fork.id === 'amsterdam')).toBe(true)
-    const amsterdam = payload.namedForks.find((fork) => fork.id === 'amsterdam')
-    expect(amsterdam?.aliases).toContain('glamsterdam')
+    expect(payload.namedForks.some((fork) => fork.id === 'pectra')).toBe(true)
+    expect(payload.namedForks.some((fork) => fork.id === 'glamsterdam')).toBe(true)
+    const amsterdam = payload.namedForks.find((fork) => fork.id === 'glamsterdam')
+    expect(amsterdam?.aliases).toContain('amsterdam')
     expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
     expect(amsterdam?.relatedEips).toEqual([7708, 7843, 7928, 8024, 8037, 8038])
     expect(amsterdam?.plannedEips).toBeUndefined()
     expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
-    expect(payload.eips).toHaveLength(9)
-    expect(payload.eips.some((e) => e.eip === 7702 && e.shapes?.includes('transaction'))).toBe(true)
+    expect(payload.eips).toHaveLength(8)
+    expect(payload.eips.some((e) => e.eip === 7702)).toBe(false)
     expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8038)).toBe(true)
@@ -116,12 +116,12 @@ describe('MCP gateway (stdio integration)', () => {
     expect(e7843?.opcodes?.some((op) => op.name === 'SLOTNUM')).toBe(true)
     const e8024 = payload.eips.find((e) => e.eip === 8024)
     expect(e8024?.runnable).toBe(true)
-    expect(e8024?.summary).toMatch(/Amsterdam/)
-    expect(e8024?.comparison?.baselineForkId).toBe('osaka')
+    expect(e8024?.summary).toMatch(/Glamsterdam/)
+    expect(e8024?.comparison?.baselineForkId).toBe('fusaka')
     expect(e8024?.opcodes?.some((op) => op.name === 'DUPN')).toBe(true)
     const e7708 = payload.eips.find((e) => e.eip === 7708)
     expect(e7708?.runnable).toBe(true)
-    expect(e7708?.comparison?.previewForkId).toBe('amsterdam')
+    expect(e7708?.comparison?.previewForkId).toBe('glamsterdam')
     expect(payload.eips.find((e) => e.eip === 8037)?.shapes).toEqual(
       expect.arrayContaining(['transaction']),
     )
@@ -158,7 +158,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.success).toBe(true)
     expect(BigInt(payload.gasUsed)).toBeGreaterThan(0n)
     expect(payload.provenance.engineVersion).toBe('0.1.0')
-    expect(payload.provenance.forkConfig.baseHardfork).toBe('amsterdam')
+    expect(payload.provenance.forkConfig.baseHardfork).toBe('glamsterdam')
     expect(payload.provenance.forkConfig.eips).toEqual([])
     expect(payload.provenance.perEip?.map((entry) => entry.eip)).toEqual([
       7708, 7843, 7928, 8024, 8037, 8038,
@@ -175,7 +175,7 @@ describe('MCP gateway (stdio integration)', () => {
         name: TOOL_RUN_BYTECODE,
         arguments: {
           ...input,
-          fork: { baseHardfork: 'osaka', eips: [] },
+          fork: { baseHardfork: 'fusaka', eips: [] },
         },
       },
       CallToolResultSchema,
@@ -191,7 +191,7 @@ describe('MCP gateway (stdio integration)', () => {
 
     expect(payload.success).toBe(false)
     expect(payload.error).toMatch(/invalid/i)
-    expect(payload.provenance.forkConfig.baseHardfork).toBe('osaka')
+    expect(payload.provenance.forkConfig.baseHardfork).toBe('fusaka')
     expect(payload.provenance.stabilityRollup).toBe('firm')
   })
 
@@ -240,7 +240,7 @@ describe('MCP gateway (stdio integration)', () => {
         name: TOOL_RUN_BYTECODE,
         arguments: {
           bytecode: EXCHANGE_AMSTERDAM_BYTECODE,
-          fork: { baseHardfork: 'amsterdam', eips: [] },
+          fork: { baseHardfork: 'glamsterdam', eips: [] },
           trace: true,
         },
       },
@@ -259,7 +259,7 @@ describe('MCP gateway (stdio integration)', () => {
 
     expect(payload.success).toBe(true)
     expect(BigInt(payload.gasUsed)).toBeGreaterThan(0n)
-    expect(payload.provenance.forkConfig.baseHardfork).toBe('amsterdam')
+    expect(payload.provenance.forkConfig.baseHardfork).toBe('glamsterdam')
     expect(payload.finalStack).toHaveLength(4)
     expect(new Set(payload.finalStack)).toEqual(new Set(['0x1', '0x2', '0x3', '0x4']))
     expect(payload.steps?.some((step) => step.op === 'EXCHANGE')).toBe(true)
@@ -289,7 +289,7 @@ describe('MCP gateway (stdio integration)', () => {
         name: TOOL_RUN_BYTECODE,
         arguments: {
           bytecode: '0x600160026003e68000',
-          fork: { baseHardfork: 'amsterdam', eips: [] },
+          fork: { baseHardfork: 'glamsterdam', eips: [] },
         },
       },
       CallToolResultSchema,
@@ -317,7 +317,7 @@ describe('MCP gateway (stdio integration)', () => {
           from: '0x00000000000000000000000000000000000000ee',
           to: '0x00000000000000000000000000000000000000aa',
           value: '1',
-          fork: { baseHardfork: 'amsterdam' },
+          fork: { baseHardfork: 'glamsterdam' },
         },
       },
       CallToolResultSchema,
@@ -366,13 +366,13 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.transactions[0]?.txStateGas).toBe('183600')
   })
 
-  it('generates BAL JSON on Amsterdam via generate', async () => {
+  it('generates BAL JSON on Glamsterdam via generate', async () => {
     client = await connectClient()
     const result = await client.callTool(
       {
         name: TOOL_GENERATE,
         arguments: {
-          fork: { baseHardfork: 'amsterdam' },
+          fork: { baseHardfork: 'glamsterdam' },
           transactions: [
             {
               from: '0xb6e610921b0a0f6f608c0e1f29a845552bc6db2c',
