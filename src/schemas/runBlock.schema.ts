@@ -5,13 +5,13 @@ import { accountSchema } from './account.schema.js'
 
 const forkSchema = z
   .object({
-    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. osaka, amsterdam).'),
+    baseHardfork: z.string().min(1).describe('Base hardfork id (e.g. fusaka, glamsterdam).'),
     eips: z
       .array(z.number().int().positive())
       .optional()
       .describe('Optional à-la-carte EIP numbers to activate.'),
   })
-  .describe('Fork capability set. Omit to use engine default (amsterdam).')
+  .describe('Fork capability set. Omit to use engine default (glamsterdam).')
 
 const transactionSchema = z
   .object({
@@ -35,7 +35,7 @@ const headerSchema = z
     slotNumber: z
       .string()
       .optional()
-      .describe('Beacon slot as a decimal string. Amsterdam / EIP-7843 only.'),
+      .describe('Beacon slot as a decimal string. Glamsterdam / EIP-7843 only.'),
     number: z.string().optional().describe('Block number as a decimal string. Default 1.'),
     timestamp: z.string().optional().describe('Unix timestamp as a decimal string. Default 1.'),
   })

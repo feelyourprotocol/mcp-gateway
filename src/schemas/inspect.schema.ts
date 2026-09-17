@@ -30,7 +30,7 @@ export const inspectInputShape = {
     .string()
     .optional()
     .describe('Optional 32-byte commitment hex (BAL, tx, withdrawalsRoot, requestsHash).'),
-  fork: forkSchema.describe('Fork for typed-transaction decode (default prague).'),
+  fork: forkSchema.describe('Fork for typed-transaction decode (default pectra).'),
 } as const
 
 export const inspectInputSchema = z.object(inspectInputShape).strict()
