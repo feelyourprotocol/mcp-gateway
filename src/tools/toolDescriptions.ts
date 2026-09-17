@@ -28,7 +28,7 @@ export const RUN_BYTECODE_DESCRIPTION = [
   'SSTORE/SLOAD program gas (EIP-8038), bytecode rewrites, and fork what-if analysis.',
   'Do not use this tool for wallet gasLimit, first-touch ETH transfers, or receipt logs — use run_transaction.',
   'Do not use this tool for a chosen header slot or several txs in one block — use run_block.',
-  'Default fork is glamsterdam (preview). Use fusaka or predecessor forks when comparing against mainnet or history.',
+  'Default fork is glamsterdam (preview). Use fusaka for current-mainnet features (ModExp, P-256) or when comparing against mainnet or history.',
   'Call describe_capabilities first for lineage, eipIntroductions, runnable EIP modules, and opcode encoding.',
   'Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.',
 ].join(' ')
@@ -45,7 +45,7 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'Pass gasLimit "21000" to see Glamsterdam first-touch fail.',
   'Do not use this tool for raw opcode / stack / precompile bytecode — use run_bytecode.',
   'Do not use this tool for several txs or a chosen header slot — use run_block.',
-  'Default fork is glamsterdam (preview). Use fusaka or historical forks for baseline or predecessor compares.',
+  'Default fork is glamsterdam (preview). Use fusaka or historical forks for current-mainnet / past-fork features or predecessor compares.',
   'Call describe_capabilities first. Limits: max gas 30000000 (default 1000000).',
 ].join(' ')
 
@@ -58,7 +58,7 @@ export const RUN_BLOCK_DESCRIPTION = [
   'or a generic lab block on any lineage fork.',
   'Optional header.slotNumber is Glamsterdam only. Paid gas of a single transfer still belongs on run_transaction.',
   'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not use for BAL JSON — use generate.',
-  'Default fork is glamsterdam (preview). Use fusaka or predecessor forks for baseline or historical compares.',
+  'Default fork is glamsterdam (preview). Use fusaka or predecessor forks for current-mainnet features or historical compares.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
 ].join(' ')
 
