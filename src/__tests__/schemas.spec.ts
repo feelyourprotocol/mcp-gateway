@@ -84,9 +84,9 @@ describe('runBytecodeInputSchema', () => {
 })
 
 describe('runTransactionInputSchema', () => {
-  it('requires from and to', () => {
+  it('requires from and allows omitted to for contract creation', () => {
     expect(() => runTransactionInputSchema.parse({})).toThrow()
-    expect(() => runTransactionInputSchema.parse({ from: '0x00' })).toThrow()
+    expect(runTransactionInputSchema.parse({ from: '0x00', data: '0x00' }).to).toBeUndefined()
   })
 
   it('accepts a minimal value transfer', () => {

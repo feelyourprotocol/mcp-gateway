@@ -16,7 +16,11 @@ const forkSchema = z
 
 export const runTransactionInputShape = {
   from: z.string().min(1).describe('Hex sender address (impersonated — no private key).'),
-  to: z.string().min(1).describe('Hex recipient address.'),
+  to: z
+    .string()
+    .min(1)
+    .optional()
+    .describe('Hex recipient address. Omit for contract creation; then data is initcode.'),
   value: z.string().optional().describe('Value in wei as decimal string. Default 0.'),
   data: z.string().optional().describe('Optional calldata hex.'),
   code: z
@@ -29,7 +33,7 @@ export const runTransactionInputShape = {
     .string()
     .optional()
     .describe(
-      'Transaction gas limit as decimal string. Default 1000000. Pass 21000 for the wallet-era simple-transfer limit.',
+      'Transaction gas limit as decimal string. Default 1000000. Maximum 110000000; large Glamsterdam deployments use the EIP-8037 state-gas reservoir.',
     ),
   authorizationList: z
     .array(authorizationListItemSchema)
