@@ -9,7 +9,7 @@ export const DESCRIBE_CAPABILITIES_DESCRIPTION = [
   'and registered runnable EIP modules (encoding rules, derived comparison pairs, shapes).',
   'Compare pattern: lookup eipIntroductions → run twice on predecessorFork(introducedAt) vs introducedAt.',
   'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate, inspect;',
-  'EIP twins (8024, 7843, 7708, 7928 BAL, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
+  'EIP twins (8024, 7843, 7708, 7928 BAL, 7954 contract size, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
   'inspectKinds lists structures inspect accepts (block-access-list first).',
   'Does not list unimplemented EIPs and does not ship demo programs — callers supply bytecode or transaction fields.',
   'Call this first for support questions (when did PUSH0 appear? which fork before ModExp repricing? is Glamsterdam available?).',
@@ -34,10 +34,11 @@ export const RUN_BYTECODE_DESCRIPTION = [
 ].join(' ')
 
 export const RUN_TRANSACTION_DESCRIPTION = [
-  'Run a value-bearing Ethereum transaction under a fork / EIP configuration (VM transaction execution).',
+  'Run an Ethereum call or contract-creation transaction under a fork / EIP configuration (VM transaction execution).',
   'Sender is impersonated from the `from` address — no private key required.',
   'Returns paid gasUsed (gasUsedScope: transaction), optional Glamsterdam txRegularGas / txStateGas,',
-  'receipt logs / decodedLogs (EIP-7708 Transfer decorations), and provenance.',
+  'receipt logs / decodedLogs (EIP-7708 Transfer decorations), provenance, and for successful creation createdAddress / deployedCodeSize.',
+  'Set to for a call. Omit to for contract creation; data is then initcode (EIP-7954 size-limit experiments).',
   'Use when the question is a generic transaction on any lineage fork, a wallet gasLimit, first-touch transfer,',
   'paid tx gas, receipt logs, or txStateGas (EIP-8037 / new-slot SSTORE).',
   'Optional authorizationList (Pectra+) runs a set-code type-4 tx — sponsor from, to = authority EOA, delegate code in accounts[].',
@@ -46,7 +47,7 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'Do not use this tool for raw opcode / stack / precompile bytecode — use run_bytecode.',
   'Do not use this tool for several txs or a chosen header slot — use run_block.',
   'Default fork is glamsterdam (preview). Use fusaka or historical forks for current-mainnet / past-fork features or predecessor compares.',
-  'Call describe_capabilities first. Limits: max gas 30000000 (default 1000000).',
+  'Call describe_capabilities first. Limits: default gas 1000000; tool ceiling 110000000 for Glamsterdam state-heavy creation, while earlier fork validity rules still apply.',
 ].join(' ')
 
 export const RUN_BLOCK_DESCRIPTION = [

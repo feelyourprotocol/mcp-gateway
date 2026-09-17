@@ -101,10 +101,10 @@ describe('MCP gateway (stdio integration)', () => {
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'glamsterdam')
     expect(amsterdam?.aliases).toContain('amsterdam')
     expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
-    expect(amsterdam?.relatedEips).toEqual([7708, 7843, 7928, 8024, 8037, 8038])
+    expect(amsterdam?.relatedEips).toEqual([7708, 7843, 7928, 7954, 8024, 8037, 8038])
     expect(amsterdam?.plannedEips).toBeUndefined()
     expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
-    expect(payload.eips).toHaveLength(8)
+    expect(payload.eips).toHaveLength(9)
     expect(payload.eips.some((e) => e.eip === 7702)).toBe(false)
     expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
@@ -161,7 +161,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.provenance.forkConfig.baseHardfork).toBe('glamsterdam')
     expect(payload.provenance.forkConfig.eips).toEqual([])
     expect(payload.provenance.perEip?.map((entry) => entry.eip)).toEqual([
-      7708, 7843, 7928, 8024, 8037, 8038,
+      7708, 7843, 7928, 7954, 8024, 8037, 8038,
     ])
     expect(payload.provenance.caveat).toMatch(/advertised modules/)
     expect(payload.steps?.[0]?.op).toBe('PUSH1')
@@ -336,6 +336,36 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.gasUsedScope).toBe('transaction')
     expect(payload.gasUsed).toBe('204600')
     expect(payload.txStateGas).toBe('183600')
+  })
+
+  it('runs an EIP-7954 contract creation via run_transaction', async () => {
+    client = await connectClient()
+    const runtimeSize = 24_577
+    const initcode = `0x7f${BigInt(runtimeSize).toString(16).padStart(64, '0')}6000f3`
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_TRANSACTION,
+        arguments: {
+          from: '0x00000000000000000000000000000000000000ee',
+          data: initcode,
+          gasLimit: '40000000',
+          fork: { baseHardfork: 'glamsterdam' },
+        },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      createdAddress?: string
+      deployedCodeSize?: number
+    }
+
+    expect(payload.success).toBe(true)
+    expect(payload.createdAddress).toMatch(/^0x[0-9a-f]{40}$/)
+    expect(payload.deployedCodeSize).toBe(runtimeSize)
   })
 
   it('runs a first-touch value transfer via run_block', async () => {
