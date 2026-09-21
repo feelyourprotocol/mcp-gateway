@@ -85,3 +85,8 @@ Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feel
 ## License
 
 MIT
+
+## Lab host
+
+Merges to `main` run [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (rsync production tree to the AWS lab; engine sibling is not overwritten). Ops and SSH cutover: private `server-config` `aws/hosts/mcp-lab/SETUP-CD.md`.
+
