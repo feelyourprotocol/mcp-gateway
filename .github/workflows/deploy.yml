@@ -1,0 +1,136 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    if: github.repository == 'feelyourprotocol/mcp-gateway'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mcp-gateway
+    steps:
+      - name: Checkout gateway
+        uses: actions/checkout@v5
+        with:
+          path: mcp-gateway
+
+      - name: Checkout execution engine (main)
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/mcp-execution-engine
+          ref: main
+          path: mcp-execution-engine
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp-gateway/package-lock.json
+
+      - name: Install and build execution engine
+        working-directory: mcp-execution-engine
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install gateway dependencies
+        run: npm ci
+
+      - run: npm run typecheck
+      - run: npm run test:ci
+      - run: npm run lf:ci
+      - run: npm run build
+
+  deploy:
+    needs: check
+    if: github.repository == 'feelyourprotocol/mcp-gateway'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: mcp-gateway
+    steps:
+      - name: Checkout gateway
+        uses: actions/checkout@v5
+        with:
+          path: mcp-gateway
+
+      - name: Checkout execution engine (main)
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/mcp-execution-engine
+          ref: main
+          path: mcp-execution-engine
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mcp-gateway/package-lock.json
+
+      - name: Install and build execution engine
+        working-directory: mcp-execution-engine
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install, build, prune gateway
+        run: |
+          npm ci
+          npm run build
+          rm -rf node_modules
+          npm ci --omit=dev
+
+      - name: rsync gateway tree to EC2
+        env:
+          MCP_SSH_KEY: ${{ secrets.MCP_SSH_KEY }}
+          MCP_SSH_HOST: ${{ secrets.MCP_SSH_HOST }}
+          MCP_SSH_KNOWN_HOSTS: ${{ secrets.MCP_SSH_KNOWN_HOSTS }}
+        working-directory: mcp-gateway
+        run: |
+          set -euo pipefail
+          test -n "${MCP_SSH_KEY:-}"
+          test -n "${MCP_SSH_HOST:-}"
+          test -n "${MCP_SSH_KNOWN_HOSTS:-}"
+          install -m 700 -d "$HOME/.ssh"
+          printf '%s\n' "$MCP_SSH_KEY" | tr -d '\r' > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$MCP_SSH_KNOWN_HOSTS" | tr -d '\r' > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+          export RSYNC_RSH="ssh -i $HOME/.ssh/id_ed25519 -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes"
+          STAGE="$(mktemp -d)"
+          cp package.json package-lock.json "$STAGE/"
+          cp -a dist node_modules "$STAGE/"
+          rsync -az --delete \
+            --exclude .deploy-stamp \
+            --exclude 'node_modules/@feelyourprotocol/mcp-execution-engine' \
+            --chmod=D755,F644 \
+            "$STAGE/" "ubuntu@${MCP_SSH_HOST}:./"
+          date -u +%Y-%m-%dT%H:%M:%SZ > "$STAGE/.deploy-stamp"
+          rsync -az --chmod=F644 "$STAGE/.deploy-stamp" "ubuntu@${MCP_SSH_HOST}:./.deploy-stamp"
+
+      - name: Wait for /healthz
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 20); do
+            if curl -sfS https://mcp.feelyourprotocol.org/healthz | grep -q '"status":"ok"'; then
+              echo "health ok"
+              exit 0
+            fi
+            echo "attempt ${i}: waiting for health"
+            sleep 3
+          done
+          echo "health check failed"
+          exit 1
