@@ -10,6 +10,8 @@ describe('MCP server instructions', () => {
     expect(SERVER_INSTRUCTIONS).toMatch(/Berlin/)
     expect(SERVER_INSTRUCTIONS).toMatch(/1559/)
     expect(SERVER_INSTRUCTIONS).toMatch(/Omit fork to use Glamsterdam/)
+    expect(SERVER_INSTRUCTIONS).toMatch(/testReleaseName/)
+    expect(SERVER_INSTRUCTIONS).toMatch(/cite that snapshot once/)
     expect(SERVER_INSTRUCTIONS).not.toMatch(/run_amsterdam/)
   })
 })

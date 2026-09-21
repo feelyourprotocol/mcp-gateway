@@ -42,6 +42,9 @@ describe('MCP gateway (stdio integration)', () => {
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
       /Berlin→Glamsterdam lineage/i,
     )
+    expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
+      /testReleaseName/,
+    )
     expect(tools.find((tool) => tool.name === TOOL_RUN_BYTECODE)?.description).toMatch(
       /generic hardfork runs/i,
     )
@@ -84,6 +87,10 @@ describe('MCP gateway (stdio integration)', () => {
         summary?: string
         shapes?: string[]
         comparison?: { baselineForkId: string; previewForkId: string }
+        specUrl?: string
+        specDate?: string
+        testReleaseName?: string
+        status?: string
       }[]
       ceilings: { maxGasLimit: string }
     }
@@ -119,6 +126,9 @@ describe('MCP gateway (stdio integration)', () => {
     expect(e8024?.summary).toMatch(/Glamsterdam/)
     expect(e8024?.comparison?.baselineForkId).toBe('fusaka')
     expect(e8024?.opcodes?.some((op) => op.name === 'DUPN')).toBe(true)
+    expect(e8024?.status).toBe('Review')
+    expect(e8024?.specDate).toBe('2026-06-10')
+    expect(e8024?.testReleaseName).toBe('tests-glamsterdam-devnet@v8.1.0')
     const e7708 = payload.eips.find((e) => e.eip === 7708)
     expect(e7708?.runnable).toBe(true)
     expect(e7708?.comparison?.previewForkId).toBe('glamsterdam')
@@ -127,6 +137,10 @@ describe('MCP gateway (stdio integration)', () => {
     )
     expect(payload.eips.some((e) => e.eip === 7883)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 7951)).toBe(true)
+    const e7883 = payload.eips.find((e) => e.eip === 7883)
+    expect(e7883?.specUrl).toBe('https://eips.ethereum.org/EIPS/eip-7883')
+    expect(e7883?.specDate).toBeUndefined()
+    expect(e7883?.testReleaseName).toBeUndefined()
     expect(BigInt(payload.ceilings.maxGasLimit)).toBe(30_000_000n)
   })
 
