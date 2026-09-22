@@ -4,18 +4,19 @@ export const DESCRIBE_CAPABILITIES_DESCRIPTION = [
   'Probe what this Feel Your Protocol MCP server supports before running simulations.',
   'Returns engine version, gas/trace/bytecode/txs-per-block ceilings, baselineForkId (fusaka — current mainnet EL),',
   'namedForks as the Berlin→Glamsterdam lineage (berlin through glamsterdam; aliases merge, shanghai, cancun, prague,',
-  'osaka, amsterdam, mainnet-el — each with order, predecessorId, successorId, activatedEips, relatedEips twins, shapes),',
-  'eipIntroductions (when each EIP activated — use with predecessor compares),',
-  'and registered runnable EIP modules (encoding rules, derived comparison pairs, shapes,',
+  'osaka, amsterdam, mainnet-el — each with order, predecessorId, successorId, activatedEips, relatedEips twins, tools),',
+  'queryShapes (catalog shape id → MCP tool name; agents call mcpTool, not id),',
+  'eipIntroductions (when each EIP activated — use with predecessor compares; observableTools are MCP names),',
+  'and registered runnable EIP modules (encoding rules, derived comparison pairs, tools,',
   'specUrl / specDate / status / testReleaseName or a live EIP page).',
   'When the question is about a specific EIP, cite that snapshot once in plain language.',
   'Compare pattern: lookup eipIntroductions → run twice on predecessorFork(introducedAt) vs introducedAt.',
-  'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate, inspect;',
+  'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate_artifact, inspect_artifact;',
   'EIP twins (8024, 7843, 7708, 7928 BAL, 7954 contract size, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
-  'inspectKinds lists structures inspect accepts (block-access-list first).',
+  'inspectKinds lists structures inspect_artifact accepts (block-access-list first).',
   'Does not list unimplemented EIPs and does not ship demo programs — callers supply bytecode or transaction fields.',
   'Call this first for support questions (when did PUSH0 appear? which fork before ModExp repricing? is Glamsterdam available?).',
-  'Then use run_bytecode, run_transaction, run_block, generate, or inspect. Default fork is glamsterdam (preview).',
+  'Then use run_bytecode, run_transaction, run_block, generate_artifact, or inspect_artifact. Default fork is glamsterdam (preview).',
 ].join(' ')
 
 export const RUN_BYTECODE_DESCRIPTION = [
@@ -60,20 +61,20 @@ export const RUN_BLOCK_DESCRIPTION = [
   'Use when the question needs a header slot (EIP-7843 SLOTNUM), several txs in one block, a header timestamp/number,',
   'or a generic lab block on any lineage fork.',
   'Optional header.slotNumber is Glamsterdam only. Paid gas of a single transfer still belongs on run_transaction.',
-  'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not use for BAL JSON — use generate.',
+  'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not use for BAL JSON — use generate_artifact.',
   'Default fork is glamsterdam (preview). Use fusaka or predecessor forks for current-mainnet features or historical compares.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
 ].join(' ')
 
-export const GENERATE_DESCRIPTION = [
+export const GENERATE_ARTIFACT_DESCRIPTION = [
   'Derive structured protocol artifacts from a lab block run (same inputs as run_block: 1–8 txs, accounts, optional header).',
   'Default kind block-access-list (EIP-7928): returns BAL JSON, keccak256(RLP) hash, itemCount vs gas item cap, header gasUsed, provenance.',
   'Requires Glamsterdam (EIP-7928). BYOS lab only — not verification of a mainnet block BAL without archive parent state.',
-  'Do not use run_block when the question is what the block commits to in the access list — use generate.',
+  'Do not use run_block when the question is what the block commits to in the access list — use generate_artifact.',
   'Call describe_capabilities first (EIP-7928 module, inspectKinds). Limits: max 8 transactions.',
 ].join(' ')
 
-export const INSPECT_DESCRIPTION = [
+export const INSPECT_ARTIFACT_DESCRIPTION = [
   'Judge a caller-supplied structured artifact without chain state (encoding, structure, optional hash).',
   'Kinds (see inspectKinds): block-access-list (7928 BAL), authorization-list (set-code JSON), typed-transaction (2718 RLP hex), withdrawals (4895 JSON + withdrawalsRoot), execution-requests (7685 envelopes + requestsHash).',
   'Returns wellFormed, structureOk, hashMatch, errors[], computedHash, optional details — not consensus replay against mainnet or full blob/KZG sidecars.',

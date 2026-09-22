@@ -39,7 +39,7 @@ export const runTransactionInputShape = {
     .array(authorizationListItemSchema)
     .optional()
     .describe(
-      'Signed EIP-7702 authorization JSON items — type-4 set-code tx on pectra+. Validate with inspect authorization-list first.',
+      'Signed EIP-7702 authorization JSON items — type-4 set-code tx on pectra+. Validate with inspect_artifact authorization-list first.',
     ),
 } as const
 

@@ -8,8 +8,8 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js'
 import {
   SERVER_NAME,
   TOOL_DESCRIBE_CAPABILITIES,
-  TOOL_GENERATE,
-  TOOL_INSPECT,
+  TOOL_GENERATE_ARTIFACT,
+  TOOL_INSPECT_ARTIFACT,
   TOOL_RUN_BLOCK,
   TOOL_RUN_BYTECODE,
   TOOL_RUN_TRANSACTION,
@@ -36,8 +36,8 @@ describe('MCP gateway (stdio integration)', () => {
     expect(names).toContain(TOOL_RUN_BYTECODE)
     expect(names).toContain(TOOL_RUN_TRANSACTION)
     expect(names).toContain(TOOL_RUN_BLOCK)
-    expect(names).toContain(TOOL_GENERATE)
-    expect(names).toContain(TOOL_INSPECT)
+    expect(names).toContain(TOOL_GENERATE_ARTIFACT)
+    expect(names).toContain(TOOL_INSPECT_ARTIFACT)
     expect(names).toHaveLength(6)
     expect(tools.find((tool) => tool.name === TOOL_DESCRIBE_CAPABILITIES)?.description).toMatch(
       /Berlin→Glamsterdam lineage/i,
@@ -71,6 +71,7 @@ describe('MCP gateway (stdio integration)', () => {
     const payload = JSON.parse(extractTextContent(result)) as {
       engineVersion: string
       baselineForkId: string
+      queryShapes: { id: string; mcpTool: string; summary: string }[]
       namedForks: {
         id: string
         role?: string
@@ -78,6 +79,7 @@ describe('MCP gateway (stdio integration)', () => {
         summary?: string
         relatedEips?: number[]
         plannedEips?: number[]
+        tools?: string[]
         shapes?: string[]
       }[]
       eips: {
@@ -85,6 +87,7 @@ describe('MCP gateway (stdio integration)', () => {
         runnable?: boolean
         opcodes?: { name: string }[]
         summary?: string
+        tools?: string[]
         shapes?: string[]
         comparison?: { baselineForkId: string; previewForkId: string }
         specUrl?: string
@@ -110,7 +113,12 @@ describe('MCP gateway (stdio integration)', () => {
     expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
     expect(amsterdam?.relatedEips).toEqual([7708, 7843, 7928, 7954, 8024, 8037, 8038])
     expect(amsterdam?.plannedEips).toBeUndefined()
-    expect(amsterdam?.shapes).toEqual(['simulate', 'transaction', 'block'])
+    expect(amsterdam?.tools).toEqual(['run_bytecode', 'run_transaction', 'run_block'])
+    expect(amsterdam?.shapes).toBeUndefined()
+    expect(payload.queryShapes.find((row) => row.id === 'simulate')?.mcpTool).toBe('run_bytecode')
+    expect(payload.queryShapes.find((row) => row.id === 'generate')?.mcpTool).toBe(
+      'generate_artifact',
+    )
     expect(payload.eips).toHaveLength(9)
     expect(payload.eips.some((e) => e.eip === 7702)).toBe(false)
     expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
@@ -119,7 +127,8 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.eips.some((e) => e.eip === 7843)).toBe(true)
     const e7843 = payload.eips.find((e) => e.eip === 7843)
     expect(e7843?.runnable).toBe(true)
-    expect(e7843?.shapes).toEqual(['block'])
+    expect(e7843?.tools).toEqual(['run_block'])
+    expect(e7843?.shapes).toBeUndefined()
     expect(e7843?.opcodes?.some((op) => op.name === 'SLOTNUM')).toBe(true)
     const e8024 = payload.eips.find((e) => e.eip === 8024)
     expect(e8024?.runnable).toBe(true)
@@ -132,8 +141,8 @@ describe('MCP gateway (stdio integration)', () => {
     const e7708 = payload.eips.find((e) => e.eip === 7708)
     expect(e7708?.runnable).toBe(true)
     expect(e7708?.comparison?.previewForkId).toBe('glamsterdam')
-    expect(payload.eips.find((e) => e.eip === 8037)?.shapes).toEqual(
-      expect.arrayContaining(['transaction']),
+    expect(payload.eips.find((e) => e.eip === 8037)?.tools).toEqual(
+      expect.arrayContaining(['run_transaction']),
     )
     expect(payload.eips.some((e) => e.eip === 7883)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 7951)).toBe(true)
@@ -410,11 +419,11 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.transactions[0]?.txStateGas).toBe('183600')
   })
 
-  it('generates BAL JSON on Glamsterdam via generate', async () => {
+  it('generates BAL JSON on Glamsterdam via generate_artifact', async () => {
     client = await connectClient()
     const result = await client.callTool(
       {
-        name: TOOL_GENERATE,
+        name: TOOL_GENERATE_ARTIFACT,
         arguments: {
           fork: { baseHardfork: 'glamsterdam' },
           transactions: [

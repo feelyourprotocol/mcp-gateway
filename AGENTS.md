@@ -31,6 +31,8 @@ Agent → mcp-gateway (this repo) → mcp-execution-engine → EthereumJS
 | `run_bytecode` | `simulateBytecode()` |
 | `run_transaction` | `runTransaction()` |
 | `run_block` | `runBlock()` |
+| `generate_artifact` | `generateArtifact()` |
+| `inspect_artifact` | `inspectArtifact()` |
 
 Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`) or per-fork tools (e.g. `run_amsterdam`). EIP and named-fork coverage is advertised via server instructions, tool descriptions, and live probe output.
 

@@ -7,24 +7,24 @@ alwaysApply: true
 
 ## Few generic tools
 
-- Tools are **verbs** (probe, simulate, transaction, block, generate, inspect), not per-EIP or per-fork endpoints
+- Tools are **verbs** (probe, simulate, transaction, block, generate, inspect), not per-EIP or per-fork endpoints. MCP names: `describe_capabilities`, `run_bytecode`, `run_transaction`, `run_block`, `generate_artifact`, `inspect_artifact`
 - Do not add `simulate_eip8024` or `run_amsterdam` — EIP modules and named forks live in the engine catalog
 - New query shape → one new generic tool + engine function
 
 ## Descriptions are the prompt
 
 - Server `instructions` must claim generic hardfork prompts (run under Glamsterdam / Fusaka / Pectra with no EIP named)
-- Tool `description` strings must mention Glamsterdam, generic fork runs, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block`)
-- `describe_capabilities`: probe first — named forks as capabilities, runnable modules, opcodes/encoding, shapes, spec snapshot (`specUrl`, `specDate`, `status`, `testReleaseName`)
+- Tool `description` strings must mention Glamsterdam, generic fork runs, runnable EIPs, and which verb to pick (`run_bytecode` vs `run_transaction` vs `run_block` vs `generate_artifact` vs `inspect_artifact`)
+- `describe_capabilities`: probe first — named forks as capabilities, runnable modules, opcodes/encoding, `queryShapes` + `tools` (not `shapes`), spec snapshot (`specUrl`, `specDate`, `status`, `testReleaseName`)
 - `run_bytecode`: generic bytecode under a fork; opcodes / precompiles / traces / program-gas SSTORE; optional accounts prestate; point at probe; no demo programs
 - `run_transaction`: generic paid tx under a fork; receipts, wallet gasLimit, txStateGas; point at probe
 - `run_block`: 1–8 txs as a lab block, optional header slot/number/timestamp; not BAL JSON
-- `generate`: derive lab artifacts (BAL first) — same inputs as run_block
-- `inspect`: judge caller-supplied structures (BAL JSON/RLP) without chain state
+- `generate_artifact`: derive lab artifacts (BAL first) — same inputs as run_block
+- `inspect_artifact`: judge caller-supplied structures (BAL JSON/RLP) without chain state
 
 ## Probe-first for runtime agents
 
-- Human and runtime agents should call `describe_capabilities` before `run_bytecode`, `run_transaction`, or `run_block`
+- Human and runtime agents should call `describe_capabilities` before `run_bytecode`, `run_transaction`, `run_block`, `generate_artifact`, or `inspect_artifact`
 - Live `describeCapabilities()` is authoritative — not stale markdown in the repo
 
 ## After gateway changes

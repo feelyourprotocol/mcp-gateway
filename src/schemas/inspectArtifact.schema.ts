@@ -8,7 +8,7 @@ const forkSchema = z
   })
   .optional()
 
-export const inspectInputShape = {
+export const inspectArtifactInputShape = {
   kind: z
     .enum([
       'block-access-list',
@@ -33,10 +33,10 @@ export const inspectInputShape = {
   fork: forkSchema.describe('Fork for typed-transaction decode (default pectra).'),
 } as const
 
-export const inspectInputSchema = z.object(inspectInputShape).strict()
+export const inspectArtifactInputSchema = z.object(inspectArtifactInputShape).strict()
 
-export type InspectToolInput = z.infer<typeof inspectInputSchema>
+export type InspectArtifactToolInput = z.infer<typeof inspectArtifactInputSchema>
 
-export function parseInspectInput(input: unknown): InspectInput {
-  return inspectInputSchema.parse(input)
+export function parseInspectArtifactInput(input: unknown): InspectInput {
+  return inspectArtifactInputSchema.parse(input)
 }

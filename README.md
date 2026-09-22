@@ -29,6 +29,9 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | `describe_capabilities` | probe | Shipped (stdio) |
 | `run_bytecode` | simulate | Shipped (stdio) |
 | `run_transaction` | transaction | Shipped (stdio) |
+| `run_block` | block | Shipped (stdio) |
+| `generate_artifact` | generate | Shipped (stdio) |
+| `inspect_artifact` | inspect | Shipped (stdio) |
 
 ## Local development
 
@@ -69,7 +72,7 @@ Build first (`npm run build`). Use an absolute path to `dist/index.js`.
 On startup the server logs to **stderr** (visible in MCP logs):
 
 ```
-[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_bytecode, run_transaction
+[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_bytecode, run_transaction, run_block, generate_artifact, inspect_artifact
 ```
 
 If you only see one tool in that line, the running binary is stale.
