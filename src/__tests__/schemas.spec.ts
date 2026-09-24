@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { parseGenerateArtifactInput } from '../schemas/generateArtifact.schema.js'
+import { parseInspectArtifactInput } from '../schemas/inspectArtifact.schema.js'
 import { parseRunBlockInput, runBlockInputSchema } from '../schemas/runBlock.schema.js'
 import { parseRunBytecodeInput, runBytecodeInputSchema } from '../schemas/runBytecode.schema.js'
 import {
@@ -193,5 +195,37 @@ describe('runBlockInputSchema', () => {
         extra: true,
       }),
     ).toThrow()
+  })
+})
+
+describe('generateArtifactInputSchema', () => {
+  it('requires at least one transaction', () => {
+    expect(() => parseGenerateArtifactInput({})).toThrow()
+  })
+
+  it('accepts optional block-access-list kind', () => {
+    const parsed = parseGenerateArtifactInput({
+      kind: 'block-access-list',
+      transactions: [
+        {
+          from: '0x00000000000000000000000000000000000000ee',
+          to: '0x00000000000000000000000000000000000000aa',
+        },
+      ],
+    })
+    expect(parsed.kind).toBe('block-access-list')
+  })
+})
+
+describe('inspectArtifactInputSchema', () => {
+  it('requires artifact', () => {
+    expect(() => parseInspectArtifactInput({})).toThrow()
+  })
+
+  it('accepts BAL JSON array', () => {
+    const parsed = parseInspectArtifactInput({
+      artifact: [{ address: '0x01', storageKeys: [] }],
+    })
+    expect(Array.isArray(parsed.artifact)).toBe(true)
   })
 })

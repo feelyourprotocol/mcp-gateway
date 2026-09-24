@@ -41,7 +41,8 @@ Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`) or per-fork tools (e.
 | Path | Role |
 | --- | --- |
 | `src/tools/` | MCP tool registration + descriptions |
-| `src/schemas/` | Zod input shapes (mirror `schemas/*.json` for docs site) |
+| `src/schemas/` | Zod input shapes — **runtime source of truth** |
+| `schemas/` | Published `*.input.json` + `manifest.json` — mirror to `website/mcp-docs/public/schemas/` |
 | `src/engine/TaskProcessor.ts` | Seam for worker pool / queue later |
 | `src/index.ts` | stdio entry |
 | `src/http/` | HTTP transport (planned production) |
@@ -51,7 +52,7 @@ Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`) or per-fork tools (e.
 1. Implement engine support first (if new query shape)
 2. Extend `TaskProcessor` + `LocalTaskProcessor`
 3. Add `src/tools/*.ts`, register in `registerTools.ts`
-4. Add Zod schema + JSON schema copy for mcp-docs
+4. Add Zod in `src/schemas/`, published JSON in `schemas/` (update `manifest.json`), copy to website `mcp-docs/public/schemas/`
 5. Update `TOOL_NAMES` in `src/server/constants.ts`
 6. Integration tests in `src/__tests__/mcp.integration.spec.ts`
 7. Update mcp-docs `use/tools/` page

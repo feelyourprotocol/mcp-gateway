@@ -36,5 +36,8 @@ alwaysApply: true
 
 ## Schemas
 
-- Zod in `src/schemas/` — source of truth for validation
-- Copy JSON schema to `website/mcp-docs/public/schemas/` when inputs change
+- **Runtime:** Zod in `src/schemas/` — only layer the gateway process imports
+- **Published:** `schemas/*.input.json` listed in `schemas/manifest.json` (one file per MCP tool in `TOOL_NAMES`)
+- **Hosted:** copy published JSON **byte-for-byte** to `website/mcp-docs/public/schemas/` and link from the tool page + `runtime-agents.md`
+- CI: `publishedSchemas.spec.ts` (gateway) and `mcp-docs/publishedSchemas.sync.spec.ts` (website) fail when copies drift
+- Edit order: Zod first → gateway `schemas/` → website public copy → mcp-docs prose
