@@ -58,6 +58,24 @@ jobs:
           npm ci
           npm run build
 
+      - name: Checkout website (matching PR branch)
+        if: github.event_name == 'pull_request'
+        id: website_pr_branch
+        continue-on-error: true
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/website
+          ref: ${{ github.head_ref }}
+          path: website
+
+      - name: Checkout website (main)
+        if: github.event_name != 'pull_request' || steps.website_pr_branch.outcome != 'success'
+        uses: actions/checkout@v5
+        with:
+          repository: feelyourprotocol/website
+          ref: main
+          path: website
+
       - name: Install gateway dependencies
         run: npm ci
 

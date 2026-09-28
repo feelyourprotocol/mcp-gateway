@@ -1,0 +1,11 @@
+{
+  "description": "Published MCP tool input JSON Schemas (mirrored to website/mcp-docs/public/schemas/). Zod in src/schemas/ is runtime source of truth.",
+  "tools": {
+    "describe_capabilities": "describe_capabilities.input.json",
+    "run_bytecode": "run_bytecode.input.json",
+    "run_transaction": "run_transaction.input.json",
+    "run_block": "run_block.input.json",
+    "generate_artifact": "generate_artifact.input.json",
+    "inspect_artifact": "inspect_artifact.input.json"
+  }
+}

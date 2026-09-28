@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-/** EIP-7702 authorization JSON item (same fields as inspect authorization-list). */
+/** EIP-7702 authorization JSON item (same fields as inspect_artifact authorization-list). */
 export const authorizationListItemSchema = z
   .object({
     chainId: z.string().min(1),

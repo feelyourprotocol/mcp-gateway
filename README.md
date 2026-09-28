@@ -29,6 +29,9 @@ Docs: [mcp-docs.feelyourprotocol.org](https://mcp-docs.feelyourprotocol.org)
 | `describe_capabilities` | probe | Shipped (stdio) |
 | `run_bytecode` | simulate | Shipped (stdio) |
 | `run_transaction` | transaction | Shipped (stdio) |
+| `run_block` | block | Shipped (stdio) |
+| `generate_artifact` | generate | Shipped (stdio) |
+| `inspect_artifact` | inspect | Shipped (stdio) |
 
 ## Local development
 
@@ -69,18 +72,21 @@ Build first (`npm run build`). Use an absolute path to `dist/index.js`.
 On startup the server logs to **stderr** (visible in MCP logs):
 
 ```
-[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_bytecode, run_transaction
+[fyp-mcp] FeelYourProtocol v0.1.0 ready — tools: describe_capabilities, run_bytecode, run_transaction, run_block, generate_artifact, inspect_artifact
 ```
 
 If you only see one tool in that line, the running binary is stale.
 
 ## JSON schemas
 
-Machine-readable tool inputs (also published on [mcp-docs](https://mcp-docs.feelyourprotocol.org)):
+Runtime validation uses Zod in [`src/schemas/`](./src/schemas/). Published JSON copies for agents and mcp-docs live in [`schemas/`](./schemas/) (see [`manifest.json`](./schemas/manifest.json)) — mirror byte-for-byte to `website/mcp-docs/public/schemas/`.
 
-- [`schemas/describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
-- [`schemas/run_bytecode.input.json`](./schemas/run_bytecode.input.json)
-- [`schemas/run_transaction.input.json`](./schemas/run_transaction.input.json)
+- [`describe_capabilities.input.json`](./schemas/describe_capabilities.input.json)
+- [`run_bytecode.input.json`](./schemas/run_bytecode.input.json)
+- [`run_transaction.input.json`](./schemas/run_transaction.input.json)
+- [`run_block.input.json`](./schemas/run_block.input.json)
+- [`generate_artifact.input.json`](./schemas/generate_artifact.input.json)
+- [`inspect_artifact.input.json`](./schemas/inspect_artifact.input.json)
 
 ## License
 

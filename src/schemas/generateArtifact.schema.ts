@@ -3,7 +3,7 @@ import type { GenerateInput } from '@feelyourprotocol/mcp-execution-engine'
 
 import { runBlockInputShape } from './runBlock.schema.js'
 
-export const generateInputShape = {
+export const generateArtifactInputShape = {
   ...runBlockInputShape,
   kind: z
     .enum(['block-access-list'])
@@ -11,10 +11,10 @@ export const generateInputShape = {
     .describe('Artifact to derive from the lab block. Default block-access-list (EIP-7928).'),
 } as const
 
-export const generateInputSchema = z.object(generateInputShape).strict()
+export const generateArtifactInputSchema = z.object(generateArtifactInputShape).strict()
 
-export type GenerateToolInput = z.infer<typeof generateInputSchema>
+export type GenerateArtifactToolInput = z.infer<typeof generateArtifactInputSchema>
 
-export function parseGenerateInput(input: unknown): GenerateInput {
-  return generateInputSchema.parse(input)
+export function parseGenerateArtifactInput(input: unknown): GenerateInput {
+  return generateArtifactInputSchema.parse(input)
 }
