@@ -8,6 +8,8 @@ describe('MCP server instructions', () => {
     expect(SERVER_INSTRUCTIONS).toMatch(/Glamsterdam/)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage supported/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage consensus/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/coverage networking/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/coverage informational/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/Berlin/)
     expect(SERVER_INSTRUCTIONS).toMatch(/1559/)
     expect(SERVER_INSTRUCTIONS).toMatch(/Omit fork to use Glamsterdam/)
