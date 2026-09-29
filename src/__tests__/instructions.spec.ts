@@ -6,7 +6,7 @@ describe('MCP server instructions', () => {
   it('claims generic hardfork prompts without requiring an EIP', () => {
     expect(SERVER_INSTRUCTIONS).toMatch(/even if they do not name an EIP/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/Glamsterdam/)
-    expect(SERVER_INSTRUCTIONS).toMatch(/eipIntroductions/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/coverage supported/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/Berlin/)
     expect(SERVER_INSTRUCTIONS).toMatch(/1559/)
     expect(SERVER_INSTRUCTIONS).toMatch(/Omit fork to use Glamsterdam/)
