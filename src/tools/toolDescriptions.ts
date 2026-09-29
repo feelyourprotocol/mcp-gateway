@@ -17,7 +17,7 @@ export const DESCRIBE_CAPABILITIES_DESCRIPTION = [
   'When the question is about a specific EIP, cite that snapshot once in plain language.',
   'Compare pattern: lookup eipIntroductions → run twice on predecessorFork(introducedAt) vs introducedAt.',
   'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate_artifact, inspect_artifact;',
-  'EIP twins (8024, 7843, 7708, 7928 BAL, 7954 contract size, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
+  'EIP twins (2780 intrinsic gas, 8024, 7843, 7708, 7928 BAL, 7954 contract size, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
   'inspectKinds lists structures inspect_artifact accepts (block-access-list first).',
   'Does not list unimplemented EIPs and does not ship demo programs — callers supply bytecode or transaction fields.',
   'Call this first for support questions (when did PUSH0 appear? which fork before ModExp repricing? is Glamsterdam available?).',
