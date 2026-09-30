@@ -1,14 +1,13 @@
+import { resolveApiUrl, useLiveMetricsApi } from '@/api/resolveApiUrl'
 import { DEMO_CARDS } from '@/fixtures/demoCatalog'
 import { demoQueryForCard } from '@/fixtures/demoQueries'
 import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
 
-const useLiveApi = import.meta.env.MODE === 'live'
-
 export async function fetchCards(): Promise<CardDefinition[]> {
-  if (!useLiveApi) {
+  if (!useLiveMetricsApi()) {
     return DEMO_CARDS
   }
-  const res = await fetch('/api/cards')
+  const res = await fetch(resolveApiUrl('/api/cards'))
   if (!res.ok) {
     throw new Error('failed to load cards')
   }
@@ -21,7 +20,7 @@ export async function fetchCardQuery(
   window: MetricsWindow,
   grain: MetricsGrain,
 ): Promise<CardQueryResult> {
-  if (!useLiveApi) {
+  if (!useLiveMetricsApi()) {
     const card = DEMO_CARDS.find((c) => c.id === cardId)
     if (!card) {
       throw new Error('unknown card')
@@ -29,7 +28,7 @@ export async function fetchCardQuery(
     return demoQueryForCard(card, window, grain)
   }
   const params = new URLSearchParams({ window, grain })
-  const res = await fetch(`/api/cards/${cardId}/query?${params}`)
+  const res = await fetch(resolveApiUrl(`/api/cards/${cardId}/query?${params}`))
   if (!res.ok) {
     throw new Error('query failed')
   }

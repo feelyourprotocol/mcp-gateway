@@ -11,4 +11,4 @@ npm run test:unit:ci
 npm run test:e2e
 ```
 
-Build output: `metrics-ui/dist` (referenced by `MCP_METRICS_UI_DIST` on the server).
+Build output: `metrics-ui/dist` (referenced by `MCP_METRICS_UI_DIST` on the server). Production builds use `base: '/usage/'` so assets and `/api/*` resolve under the nginx `/usage/` location.
