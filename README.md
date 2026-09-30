@@ -109,5 +109,5 @@ MIT
 
 ## Lab host
 
-Merges to `main` run [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (rsync production tree to the AWS lab; engine sibling is not overwritten). Ops and SSH cutover: private `server-config` `aws/hosts/mcp-lab/SETUP-CD.md`.
+Merges to `main` run [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) (rsync `dist/`, production `node_modules/`, and `metrics-ui/dist/` to the AWS lab; engine sibling is not overwritten). The deploy stamp restarts `fyp-mcp-http` and `fyp-mcp-metrics`. Ops: `server-config` [`aws/hosts/mcp-lab/SETUP-CD.md`](https://github.com/feelyourprotocol/server-config/blob/main/aws/hosts/mcp-lab/SETUP-CD.md) and [`aws/roles/health/METRICS.md`](https://github.com/feelyourprotocol/server-config/blob/main/aws/roles/health/METRICS.md).
 

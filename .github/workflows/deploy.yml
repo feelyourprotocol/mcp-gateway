@@ -52,6 +52,11 @@ jobs:
       - run: npm run test:ci
       - run: npm run lf:ci
       - run: npm run build
+      - name: Build and test metrics-ui
+        run: |
+          npm ci --prefix metrics-ui
+          npm run test:unit:ci --prefix metrics-ui
+          npm run build --prefix metrics-ui
 
   deploy:
     needs: check
@@ -90,6 +95,8 @@ jobs:
         run: |
           npm ci
           npm run build
+          npm ci --prefix metrics-ui
+          npm run build --prefix metrics-ui
           rm -rf node_modules
           npm ci --omit=dev
 
@@ -113,6 +120,8 @@ jobs:
           STAGE="$(mktemp -d)"
           cp package.json package-lock.json "$STAGE/"
           cp -a dist node_modules "$STAGE/"
+          mkdir -p "$STAGE/metrics-ui"
+          cp -a metrics-ui/dist "$STAGE/metrics-ui/"
           rsync -az --delete \
             --exclude .deploy-stamp \
             --exclude 'node_modules/@feelyourprotocol/mcp-execution-engine' \
