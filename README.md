@@ -77,6 +77,21 @@ On startup the server logs to **stderr** (visible in MCP logs):
 
 If you only see one tool in that line, the running binary is stale.
 
+## Usage metrics (HTTP lab)
+
+Gateway appends events to SQLite when `MCP_METRICS_DB` is set (`session_open`, `tool_call` with optional payment fields for future x402). Operator UI lives in [`metrics-ui/`](./metrics-ui/) (Vue + Tailwind + ECharts).
+
+```bash
+npm run start:http          # MCP on :3000
+MCP_METRICS_DB=/tmp/events.sqlite MCP_METRICS_PEPPER=dev npm run start:http
+MCP_METRICS_DB=/tmp/events.sqlite npm run start:metrics   # after metrics-ui build
+
+cd metrics-ui && npm ci && npm run dev   # :5174 with demo fixtures
+npm run metrics-ui:build
+```
+
+Production: `fyp-mcp-metrics` on loopback `:3001`, nginx `https://mcp.feelyourprotocol.org/usage/` (basic auth). See `server-config` `aws/roles/health/METRICS.md`.
+
 ## JSON schemas
 
 Runtime validation uses Zod in [`src/schemas/`](./src/schemas/). Published JSON copies for agents and mcp-docs live in [`schemas/`](./schemas/) (see [`manifest.json`](./schemas/manifest.json)) — mirror byte-for-byte to `website/mcp-docs/public/schemas/`.

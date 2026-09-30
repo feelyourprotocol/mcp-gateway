@@ -5,10 +5,35 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
 
 import { createGatewayServer } from '../bootstrap/createGateway.js'
+import { computeActorKey } from '../metrics/actor.js'
+import { getMetricsWriter } from '../metrics/globalWriter.js'
+import { clientIpFromRequest, extractClientInfoFromInitializeBody } from '../metrics/httpHelpers.js'
+import { metricsRequestContext } from '../metrics/requestContext.js'
+import {
+  deleteSessionMetricsContext,
+  getSessionMetricsContext,
+  setSessionMetricsContext,
+} from '../metrics/sessionRegistry.js'
+import type { RequestMetricsContext } from '../metrics/types.js'
 import { SERVER_NAME, SERVER_VERSION, TOOL_NAMES } from '../server/constants.js'
 
 export type CreateHttpAppOptions = {
   allowedHosts?: string[]
+}
+
+function buildInitializeMetricsContext(req: Request, body: unknown): RequestMetricsContext {
+  const { clientName, clientVersion } = extractClientInfoFromInitializeBody(body)
+  const ip = clientIpFromRequest(req)
+  const pepper = process.env.MCP_METRICS_PEPPER ?? ''
+  const actorKey = computeActorKey({ pepper, clientName, clientVersion, ip })
+  return {
+    actorKey,
+    clientName,
+    clientVersion,
+    settlement: 'unpaid',
+    amountMicroUsdc: null,
+    asset: null,
+  }
 }
 
 export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
@@ -22,6 +47,8 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
     host: '127.0.0.1',
     allowedHosts,
   })
+
+  app.set('trust proxy', 1)
 
   const transports = new Map<string, StreamableHTTPServerTransport>()
 
@@ -52,6 +79,7 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
 
     try {
       let transport: StreamableHTTPServerTransport | undefined
+      let metricsContext: RequestMetricsContext | undefined
 
       if (sessionId) {
         transport = transports.get(sessionId)
@@ -63,12 +91,23 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
           })
           return
         }
+        metricsContext = getSessionMetricsContext(sessionId)
       } else if (req.method === 'POST' && isInitializeRequest(req.body)) {
+        metricsContext = buildInitializeMetricsContext(req, req.body)
+
         transport = new StreamableHTTPServerTransport({
           sessionIdGenerator: () => randomUUID(),
           onsessioninitialized: (newSessionId) => {
-            if (transport) {
+            if (transport && metricsContext) {
               transports.set(newSessionId, transport)
+              setSessionMetricsContext(newSessionId, metricsContext)
+              getMetricsWriter().enqueue({
+                kind: 'session_open',
+                ts: Date.now(),
+                actorKey: metricsContext.actorKey,
+                clientName: metricsContext.clientName,
+                clientVersion: metricsContext.clientVersion,
+              })
             }
           },
         })
@@ -77,6 +116,7 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
           const sid = transport?.sessionId
           if (sid) {
             transports.delete(sid)
+            deleteSessionMetricsContext(sid)
           }
         }
 
@@ -94,7 +134,15 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
         return
       }
 
-      await transport.handleRequest(req, res, req.body)
+      const runTransport = async (): Promise<void> => {
+        await transport!.handleRequest(req, res, req.body)
+      }
+
+      if (metricsContext) {
+        await metricsRequestContext.run(metricsContext, runTransport)
+      } else {
+        await runTransport()
+      }
     } catch (error) {
       console.error('[fyp-mcp] MCP HTTP error:', error)
       if (!res.headersSent) {
