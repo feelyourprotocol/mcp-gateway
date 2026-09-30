@@ -1,0 +1,27 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('./assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('./assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+}
+
+@theme {
+  --font-mono:
+    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}

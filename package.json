@@ -8,7 +8,8 @@
   },
   "bin": {
     "fyp-mcp": "./dist/index.js",
-    "fyp-mcp-http": "./dist/http/index.js"
+    "fyp-mcp-http": "./dist/http/index.js",
+    "fyp-mcp-metrics": "./dist/metrics/server/index.js"
   },
   "exports": {
     ".": {
@@ -30,6 +31,9 @@
     "lf:ci": "eslint . && prettier -c src/",
     "start": "node dist/index.js",
     "start:http": "node dist/http/index.js",
+    "start:metrics": "node dist/metrics/server/index.js",
+    "metrics-ui:build": "npm run build --prefix metrics-ui",
+    "metrics-ui:dev": "npm run dev --prefix metrics-ui",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {

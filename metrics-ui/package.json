@@ -1,0 +1,45 @@
+{
+  "name": "@feelyourprotocol/mcp-metrics-ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:live": "vite --mode live",
+    "build": "vue-tsc --build && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:unit:ci": "vitest run",
+    "test:e2e": "start-server-and-test dev http://localhost:5174 'cypress run --e2e'",
+    "typecheck": "vue-tsc --build",
+    "lf": "prettier --write src/ cypress/ && eslint . --fix",
+    "lf:ci": "eslint . && prettier -c src/ cypress/"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.2.0",
+    "echarts": "^5.6.0",
+    "vue": "^3.5.41",
+    "vue-echarts": "^7.0.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tsconfig/node22": "^22.0.6",
+    "@types/node": "^22.20.1",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/test-utils": "^2.4.11",
+    "cypress": "^15.21.0",
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-vue": "~10.3.0",
+    "typescript-eslint": "^8.38.0",
+    "vue-eslint-parser": "^10.2.0",
+    "jsdom": "^26.1.0",
+    "prettier": "3.6.2",
+    "start-server-and-test": "^2.1.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.8.0",
+    "vite": "^8.2.2",
+    "vitest": "^4.1.11",
+    "vue-tsc": "^3.3.11"
+  }
+}
