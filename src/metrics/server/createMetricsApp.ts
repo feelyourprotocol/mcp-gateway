@@ -62,7 +62,8 @@ export function createMetricsApp(options: CreateMetricsAppOptions): Express {
 
   const uiDist = options.uiDistPath ?? process.env.MCP_METRICS_UI_DIST ?? defaultUiDistPath()
   app.use(express.static(uiDist))
-  app.get('*', (_req, res) => {
+  // Express 5 / path-to-regexp v8 — bare `*` is invalid; named wildcard for SPA fallback.
+  app.get('/{*splat}', (_req, res) => {
     res.sendFile(path.join(uiDist, 'index.html'), (error) => {
       if (error) {
         res.status(503).send('Metrics UI not built — run npm run build in metrics-ui/')
