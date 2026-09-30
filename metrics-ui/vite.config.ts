@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vite'
 
 export default defineConfig(({ mode }) => ({
+  // Served behind nginx at https://…/usage/ (proxy strips prefix to :3001).
+  base: mode === 'production' ? '/usage/' : '/',
   plugins: [tailwindcss(), vue()],
   resolve: {
     alias: {
