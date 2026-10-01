@@ -12,10 +12,10 @@ export const DESCRIBE_CAPABILITIES_DESCRIPTION = [
   'networking means a wire-protocol EIP this lab does not speak — do not put it in eips;',
   'informational means an analysis or schedule this lab does not execute — do not put it in eips;',
   'observableTools are MCP names),',
-  'and registered runnable EIP modules (encoding rules, derived comparison pairs, tools,',
+  'and registered runnable EIP modules (encoding rules, optional comparison lookup on each row, tools,',
   'specUrl / specDate / status / testReleaseName or a live EIP page).',
   'When the question is about a specific EIP, cite that snapshot once in plain language.',
-  'Compare pattern: lookup eipIntroductions → run twice on predecessorFork(introducedAt) vs introducedAt.',
+  'Use eipIntroductions for when-did-this-activate lookups; that is not a signal to run two simulations unless the user asked to compare.',
   'Live coverage: generic runs on any lineage fork via run_bytecode, run_transaction, run_block, generate_artifact, inspect_artifact;',
   'EIP twins (2780 intrinsic gas, 8024, 7843, 7708, 7928 BAL, 7954 contract size, 8037, 8038 on Glamsterdam; 7883 ModExp and 7951 P-256 on Fusaka). Pectra+ set-code: run_transaction authorizationList (not a catalogue twin).',
   'inspectKinds lists structures inspect_artifact accepts (block-access-list first).',
@@ -32,11 +32,11 @@ export const RUN_BYTECODE_DESCRIPTION = [
   'Optional accounts[] seeds code/balance/storage in the same call (existing-slot SSTORE:',
   'put storage on 0x00000000000000000000000000000000000000b1).',
   'Use for generic hardfork runs (any lineage fork with eips: []), opcode behavior (EIP-8024 on Glamsterdam),',
-  'historical compares (PUSH0 0x5f on shapella vs paris), precompile calls (ModExp 0x05, P-256 0x100 on Fusaka),',
-  'SSTORE/SLOAD program gas (EIP-8038), bytecode rewrites, and fork what-if analysis.',
+  'precompile calls (ModExp 0x05, P-256 0x100 on Fusaka), SSTORE/SLOAD program gas (EIP-8038), and bytecode experiments.',
   'Do not use this tool for wallet gasLimit, first-touch ETH transfers, or receipt logs — use run_transaction.',
   'Do not use this tool for a chosen header slot or several txs in one block — use run_block.',
-  'Default fork is glamsterdam (preview). Use fusaka for current-mainnet features (ModExp, P-256) or when comparing against mainnet or history.',
+  'Default fork is glamsterdam (preview). Use fusaka for current-mainnet EL behavior (ModExp, P-256).',
+  'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first for lineage, eipIntroductions, runnable EIP modules, and opcode encoding.',
   'Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.',
 ].join(' ')
@@ -54,7 +54,8 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'Pass gasLimit "21000" to see Glamsterdam first-touch fail.',
   'Do not use this tool for raw opcode / stack / precompile bytecode — use run_bytecode.',
   'Do not use this tool for several txs or a chosen header slot — use run_block.',
-  'Default fork is glamsterdam (preview). Use fusaka or historical forks for current-mainnet / past-fork features or predecessor compares.',
+  'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
+  'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: default gas 1000000; tool ceiling 110000000 for Glamsterdam state-heavy creation, while earlier fork validity rules still apply.',
 ].join(' ')
 
@@ -67,7 +68,8 @@ export const RUN_BLOCK_DESCRIPTION = [
   'or a generic lab block on any lineage fork.',
   'Optional header.slotNumber is Glamsterdam only. Paid gas of a single transfer still belongs on run_transaction.',
   'Do not use this tool for raw opcode bytecode — use run_bytecode. Do not use for BAL JSON — use generate_artifact.',
-  'Default fork is glamsterdam (preview). Use fusaka or predecessor forks for current-mainnet features or historical compares.',
+  'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
+  'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
 ].join(' ')
 

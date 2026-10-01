@@ -17,4 +17,11 @@ describe('MCP server instructions', () => {
     expect(SERVER_INSTRUCTIONS).toMatch(/cite that snapshot once/)
     expect(SERVER_INSTRUCTIONS).not.toMatch(/run_amsterdam/)
   })
+
+  it('defaults to one run per named fork; compare only when asked', () => {
+    expect(SERVER_INSTRUCTIONS).toMatch(/run one simulation on that fork only/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/Do not also run the predecessor fork unless they ask/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/Only when the user asks to compare/i)
+    expect(SERVER_INSTRUCTIONS).not.toMatch(/^To compare a protocol change:/)
+  })
 })
