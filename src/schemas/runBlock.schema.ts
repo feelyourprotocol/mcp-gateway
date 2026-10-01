@@ -48,7 +48,12 @@ export const runBlockInputShape = {
     .max(8)
     .describe('1–8 impersonated transactions to execute as one lab block.'),
   header: headerSchema.optional().describe('Optional lab header fields (slot, number, timestamp).'),
-  accounts: z.array(accountSchema).optional().describe('Extra accounts to prefund.'),
+  accounts: z
+    .array(accountSchema)
+    .optional()
+    .describe(
+      'BYOS prestate: fund tx senders and on-chain contracts (wei, code, storage, nonce) in the same call.',
+    ),
   fork: forkSchema.optional(),
 } as const
 

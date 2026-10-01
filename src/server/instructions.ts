@@ -25,5 +25,9 @@ export const SERVER_INSTRUCTIONS = [
   'run_transaction (paid tx / receipts / wallet gasLimit),',
   'run_block (1–8 txs / header slot), generate_artifact (lab BAL and later artifacts), or inspect_artifact (structure/hash without chain state).',
   'Omit fork to use Glamsterdam. baselineForkId (fusaka) marks current mainnet EL in the probe; pick the fork the user asked for.',
+  'Each run starts an empty world (no mainnet state). Put demo prestate in accounts[] on the same tool call:',
+  'address, balance in wei (e.g. 3000000000000000000 for 3 ETH, 0 for unfunded), optional nonce, runtime code, storage slots.',
+  'The agent builds accounts[] from natural language; the server validates and applies it — no prefabricated contracts or demo worlds.',
+  'run_bytecode: the program under test is bytecode; other contracts and callers are accounts[].',
   'Callers supply bytecode or transaction fields; this server does not ship demo programs.',
 ].join(' ')

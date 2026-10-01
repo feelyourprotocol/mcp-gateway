@@ -3,7 +3,13 @@ import { z } from 'zod'
 export const accountSchema = z
   .object({
     address: z.string().min(1).describe('Hex address.'),
-    balance: z.string().optional().describe('Balance in wei as decimal string.'),
+    balance: z
+      .string()
+      .optional()
+      .describe(
+        'Balance in wei as decimal string. Omit for default 1 ETH prefund; use "0" for unfunded.',
+      ),
+    nonce: z.string().optional().describe('Account nonce as decimal string. Default 0.'),
     code: z.string().optional().describe('Optional runtime bytecode at this address.'),
     storage: z
       .array(
