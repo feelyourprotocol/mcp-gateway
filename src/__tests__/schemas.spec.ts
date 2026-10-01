@@ -66,6 +66,22 @@ describe('runBytecodeInputSchema', () => {
     expect(parsed.accounts?.[0]?.storage?.[0]?.slot).toBe('0x03')
   })
 
+  it('accepts accounts nonce and zero balance', () => {
+    const parsed = parseRunBytecodeInput({
+      bytecode: '0x600100',
+      accounts: [
+        {
+          address: '0x00000000000000000000000000000000000000cc',
+          balance: '0',
+          nonce: '12',
+          code: '0x600100',
+        },
+      ],
+    })
+    expect(parsed.accounts?.[0]?.balance).toBe('0')
+    expect(parsed.accounts?.[0]?.nonce).toBe('12')
+  })
+
   it('rejects non-string gasLimit', () => {
     expect(() =>
       runBytecodeInputSchema.parse({

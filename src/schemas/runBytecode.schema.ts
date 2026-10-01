@@ -22,7 +22,7 @@ export const runBytecodeInputShape = {
     .array(accountSchema)
     .optional()
     .describe(
-      'Optional prestate: code/balance/storage at other addresses, or storage on the lab execution account 0x00000000000000000000000000000000000000b1.',
+      'BYOS prestate in the same call: balances (wei strings), runtime code, storage, nonce. Empty world otherwise. Lab execution target uses bytecode field; seed other contracts and callers here.',
     ),
   fork: forkSchema.optional(),
   gasLimit: z

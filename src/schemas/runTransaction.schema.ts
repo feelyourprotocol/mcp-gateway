@@ -27,7 +27,12 @@ export const runTransactionInputShape = {
     .string()
     .optional()
     .describe('Optional runtime bytecode installed at to before the transaction.'),
-  accounts: z.array(accountSchema).optional().describe('Extra accounts to prefund.'),
+  accounts: z
+    .array(accountSchema)
+    .optional()
+    .describe(
+      'BYOS prestate: fund senders/recipients/contracts (wei, code, storage, nonce) in the same call. Empty world otherwise.',
+    ),
   fork: forkSchema.optional(),
   gasLimit: z
     .string()
