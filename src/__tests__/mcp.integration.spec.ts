@@ -363,6 +363,44 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.txStateGas).toBe('183600')
   })
 
+  it('runs an access-list transaction on Glamsterdam (EIP-7981 floor)', async () => {
+    client = await connectClient()
+    const result = await client.callTool(
+      {
+        name: TOOL_RUN_TRANSACTION,
+        arguments: {
+          from: '0x00000000000000000000000000000000000000c1',
+          to: '0x00000000000000000000000000000000000000d3',
+          value: '0',
+          accessList: [
+            {
+              address: '0x00000000000000000000000000000000000000d3',
+              storageKeys: [`0x${'00'.repeat(32)}`],
+            },
+          ],
+          accounts: [
+            {
+              address: '0x00000000000000000000000000000000000000d3',
+              balance: '1000000000000000000',
+            },
+          ],
+          fork: { baseHardfork: 'glamsterdam' },
+        },
+      },
+      CallToolResultSchema,
+    )
+
+    expect(result.isError).not.toBe(true)
+
+    const payload = JSON.parse(extractTextContent(result)) as {
+      success: boolean
+      gasUsed: string
+    }
+
+    expect(payload.success).toBe(true)
+    expect(payload.gasUsed).toBe('23228')
+  })
+
   it('runs an EIP-7954 contract creation via run_transaction', async () => {
     client = await connectClient()
     const runtimeSize = 24_577
