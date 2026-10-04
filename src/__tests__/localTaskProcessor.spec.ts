@@ -24,9 +24,9 @@ describe('LocalTaskProcessor', () => {
     expect(result.namedForks.some((fork) => fork.id === 'pectra')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'fusaka')).toBe(true)
     expect(result.namedForks.some((fork) => fork.id === 'glamsterdam')).toBe(true)
-    expect(result.eips).toHaveLength(11)
+    expect(result.eips).toHaveLength(12)
     expect(result.eips.map((e) => e.eip).sort()).toEqual([
-      2780, 7708, 7843, 7883, 7928, 7951, 7954, 7976, 8024, 8037, 8038,
+      2780, 7708, 7778, 7843, 7883, 7928, 7951, 7954, 7976, 8024, 8037, 8038,
     ])
   })
 

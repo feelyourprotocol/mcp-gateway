@@ -111,7 +111,9 @@ describe('MCP gateway (stdio integration)', () => {
     const amsterdam = payload.namedForks.find((fork) => fork.id === 'glamsterdam')
     expect(amsterdam?.aliases).toContain('amsterdam')
     expect(amsterdam?.summary).toMatch(/You do not need to name an EIP/i)
-    expect(amsterdam?.relatedEips).toEqual([2780, 7708, 7843, 7928, 7954, 7976, 8024, 8037, 8038])
+    expect(amsterdam?.relatedEips).toEqual([
+      2780, 7708, 7778, 7843, 7928, 7954, 7976, 8024, 8037, 8038,
+    ])
     expect(amsterdam?.plannedEips).toBeUndefined()
     expect(amsterdam?.tools).toEqual(['run_bytecode', 'run_transaction', 'run_block'])
     expect(amsterdam?.shapes).toBeUndefined()
@@ -119,7 +121,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.queryShapes.find((row) => row.id === 'generate')?.mcpTool).toBe(
       'generate_artifact',
     )
-    expect(payload.eips).toHaveLength(11)
+    expect(payload.eips).toHaveLength(12)
     expect(payload.eips.some((e) => e.eip === 7702)).toBe(false)
     expect(payload.eips.some((e) => e.eip === 7928)).toBe(true)
     expect(payload.eips.some((e) => e.eip === 8037)).toBe(true)
@@ -184,7 +186,7 @@ describe('MCP gateway (stdio integration)', () => {
     expect(payload.provenance.forkConfig.baseHardfork).toBe('glamsterdam')
     expect(payload.provenance.forkConfig.eips).toEqual([])
     expect(payload.provenance.perEip?.map((entry) => entry.eip)).toEqual([
-      2780, 7708, 7843, 7928, 7954, 7976, 8024, 8037, 8038,
+      2780, 7708, 7778, 7843, 7928, 7954, 7976, 8024, 8037, 8038,
     ])
     expect(payload.provenance.caveat).toMatch(/advertised modules/)
     expect(payload.steps?.[0]?.op).toBe('PUSH1')

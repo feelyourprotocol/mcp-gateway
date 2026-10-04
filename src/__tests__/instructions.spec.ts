@@ -7,6 +7,7 @@ describe('MCP server instructions', () => {
     expect(SERVER_INSTRUCTIONS).toMatch(/even if they do not name an EIP/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/Glamsterdam/)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage supported/i)
+    expect(SERVER_INSTRUCTIONS).toMatch(/coverage unshown/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage consensus/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage networking/i)
     expect(SERVER_INSTRUCTIONS).toMatch(/coverage informational/i)
