@@ -52,6 +52,7 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'paid tx gas, receipt logs, or txStateGas (EIP-8037 / new-slot SSTORE).',
   'accounts[] funds senders/recipients and pre-deploys runtime code on the same call (no CREATE for “already there”).',
   'Optional authorizationList (Pectra+) runs a set-code type-4 tx — sponsor from, to = authority EOA, delegate code in accounts[].',
+  'Optional accessList (EIP-2930 type-2 tx) lists warm addresses and storage keys; on Glamsterdam those bytes pay the calldata floor (EIP-7981). Not combinable with authorizationList.',
   'A simple ETH transfer is about 21000 gas on Fusaka and about 204600 on Glamsterdam (first-touch empty recipient).',
   'Pass gasLimit "21000" to see Glamsterdam first-touch fail.',
   'Do not use this tool for raw opcode / stack / precompile bytecode — use run_bytecode.',

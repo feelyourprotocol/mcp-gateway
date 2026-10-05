@@ -157,6 +157,40 @@ describe('runTransactionInputSchema', () => {
     })
     expect(parsed.authorizationList?.length).toBe(1)
   })
+
+  it('accepts accessList for EIP-2930 runs', () => {
+    const parsed = parseRunTransactionInput({
+      from: '0x00000000000000000000000000000000000000c1',
+      to: '0x00000000000000000000000000000000000000d3',
+      accessList: [
+        {
+          address: '0x00000000000000000000000000000000000000d3',
+          storageKeys: [`0x${'00'.repeat(32)}`],
+        },
+      ],
+    })
+    expect(parsed.accessList?.length).toBe(1)
+  })
+
+  it('rejects accessList together with authorizationList', () => {
+    expect(() =>
+      runTransactionInputSchema.parse({
+        from: '0x00000000000000000000000000000000000000ee',
+        to: '0x00000000000000000000000000000000000000aa',
+        accessList: [{ address: '0x00000000000000000000000000000000000000aa' }],
+        authorizationList: [
+          {
+            chainId: '0x00',
+            address: '0x0000000000000000000000000000000000000b1',
+            nonce: '0x00',
+            yParity: '0x00',
+            r: '0x01',
+            s: '0x02',
+          },
+        ],
+      }),
+    ).toThrow(/mutually exclusive/)
+  })
 })
 
 describe('runBlockInputSchema', () => {

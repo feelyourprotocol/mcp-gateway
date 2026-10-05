@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import type { RunTransactionInput } from '@feelyourprotocol/mcp-execution-engine'
 
+import { accessListSchema } from './accessList.schema.js'
 import { accountSchema } from './account.schema.js'
 import { authorizationListItemSchema } from './authorization.schema.js'
 
@@ -46,9 +47,21 @@ export const runTransactionInputShape = {
     .describe(
       'Signed EIP-7702 authorization JSON items — type-4 set-code tx on pectra+. Validate with inspect_artifact authorization-list first.',
     ),
+  accessList: accessListSchema.optional(),
 } as const
 
-export const runTransactionInputSchema = z.object(runTransactionInputShape).strict()
+export const runTransactionInputSchema = z
+  .object(runTransactionInputShape)
+  .strict()
+  .superRefine((value, ctx) => {
+    if (value.authorizationList !== undefined && value.accessList !== undefined) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'authorizationList and accessList are mutually exclusive',
+        path: ['accessList'],
+      })
+    }
+  })
 
 export type RunTransactionToolInput = z.infer<typeof runTransactionInputSchema>
 
