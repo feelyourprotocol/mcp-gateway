@@ -40,6 +40,7 @@ export const RUN_BYTECODE_DESCRIPTION = [
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first for lineage, eipIntroductions, runnable EIP modules, and opcode encoding.',
   'Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.',
+  'Tell the user call gas and stack/return in prose — read gasUsed from the JSON but do not lead with that field name.',
 ].join(' ')
 
 export const RUN_TRANSACTION_DESCRIPTION = [
@@ -62,6 +63,7 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: default gas 1000000; tool ceiling 110000000 for Glamsterdam state-heavy creation, while earlier fork validity rules still apply.',
+  'Tell the user paid gas, wallet gasLimit, logs, and regularGas parts in prose — not gasUsed / txStateGas field names unless they want raw JSON.',
 ].join(' ')
 
 export const RUN_BLOCK_DESCRIPTION = [
@@ -78,6 +80,7 @@ export const RUN_BLOCK_DESCRIPTION = [
   'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
+  'Tell the user per-receipt paid gas and regularGasDelta in prose — not transactions[].gasUsed or header field names unless they want raw JSON.',
 ].join(' ')
 
 export const GENERATE_ARTIFACT_DESCRIPTION = [
