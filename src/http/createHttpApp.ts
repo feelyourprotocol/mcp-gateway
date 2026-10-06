@@ -1,5 +1,4 @@
 import type { Express, Request, Response } from 'express'
-import { randomUUID } from 'node:crypto'
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js'
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
@@ -9,11 +8,6 @@ import { computeActorKey } from '../metrics/actor.js'
 import { getMetricsWriter } from '../metrics/globalWriter.js'
 import { clientIpFromRequest, extractClientInfoFromInitializeBody } from '../metrics/httpHelpers.js'
 import { metricsRequestContext } from '../metrics/requestContext.js'
-import {
-  deleteSessionMetricsContext,
-  getSessionMetricsContext,
-  setSessionMetricsContext,
-} from '../metrics/sessionRegistry.js'
 import type { RequestMetricsContext } from '../metrics/types.js'
 import { SERVER_NAME, SERVER_VERSION, TOOL_NAMES } from '../server/constants.js'
 
@@ -21,19 +15,35 @@ export type CreateHttpAppOptions = {
   allowedHosts?: string[]
 }
 
-function buildInitializeMetricsContext(req: Request, body: unknown): RequestMetricsContext {
-  const { clientName, clientVersion } = extractClientInfoFromInitializeBody(body)
+function buildRequestMetricsContext(
+  req: Request,
+  client: { clientName: string; clientVersion: string },
+): RequestMetricsContext {
   const ip = clientIpFromRequest(req)
   const pepper = process.env.MCP_METRICS_PEPPER ?? ''
-  const actorKey = computeActorKey({ pepper, clientName, clientVersion, ip })
+  const actorKey = computeActorKey({
+    pepper,
+    clientName: client.clientName,
+    clientVersion: client.clientVersion,
+    ip,
+  })
   return {
     actorKey,
-    clientName,
-    clientVersion,
+    clientName: client.clientName,
+    clientVersion: client.clientVersion,
     settlement: 'unpaid',
     amountMicroUsdc: null,
     asset: null,
   }
+}
+
+function methodNotAllowed(_req: Request, res: Response): void {
+  res.set('Allow', 'POST')
+  res.status(405).json({
+    jsonrpc: '2.0',
+    error: { code: -32000, message: 'Method Not Allowed' },
+    id: null,
+  })
 }
 
 export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
@@ -50,8 +60,6 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
 
   app.set('trust proxy', 1)
 
-  const transports = new Map<string, StreamableHTTPServerTransport>()
-
   app.get('/healthz', (_req, res) => {
     res.json({
       status: 'ok',
@@ -61,88 +69,54 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
     })
   })
 
+  // No session map. Each POST gets a fresh server and a stateless transport
+  // (sessionIdGenerator omitted). A restart cannot invalidate an install, and
+  // an abandoned initialize cannot stay in memory. GET is the optional
+  // server-push stream; this lab does not push, so 405 is the spec's "no stream".
   app.post('/mcp', (req, res) => {
-    void handleMcpRequest(req, res)
+    void handleMcpPost(req, res)
   })
 
-  app.get('/mcp', (req, res) => {
-    void handleMcpRequest(req, res)
-  })
+  app.get('/mcp', methodNotAllowed)
+  app.delete('/mcp', methodNotAllowed)
 
-  app.delete('/mcp', (req, res) => {
-    void handleMcpRequest(req, res)
-  })
+  async function handleMcpPost(req: Request, res: Response): Promise<void> {
+    const server = createGatewayServer()
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    })
 
-  async function handleMcpRequest(req: Request, res: Response): Promise<void> {
-    const sessionHeader = req.headers['mcp-session-id']
-    const sessionId = typeof sessionHeader === 'string' ? sessionHeader : undefined
-
-    try {
-      let transport: StreamableHTTPServerTransport | undefined
-      let metricsContext: RequestMetricsContext | undefined
-
-      if (sessionId) {
-        transport = transports.get(sessionId)
-        if (!transport) {
-          res.status(404).json({
-            jsonrpc: '2.0',
-            error: { code: -32000, message: 'Session not found' },
-            id: null,
-          })
-          return
-        }
-        metricsContext = getSessionMetricsContext(sessionId)
-      } else if (req.method === 'POST' && isInitializeRequest(req.body)) {
-        metricsContext = buildInitializeMetricsContext(req, req.body)
-
-        transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: () => randomUUID(),
-          onsessioninitialized: (newSessionId) => {
-            if (transport && metricsContext) {
-              transports.set(newSessionId, transport)
-              setSessionMetricsContext(newSessionId, metricsContext)
-              getMetricsWriter().enqueue({
-                kind: 'session_open',
-                ts: Date.now(),
-                actorKey: metricsContext.actorKey,
-                clientName: metricsContext.clientName,
-                clientVersion: metricsContext.clientVersion,
-              })
-            }
-          },
-        })
-
-        transport.onclose = () => {
-          const sid = transport?.sessionId
-          if (sid) {
-            transports.delete(sid)
-            deleteSessionMetricsContext(sid)
-          }
-        }
-
-        const server = createGatewayServer()
-        await server.connect(transport)
-      } else {
-        res.status(400).json({
-          jsonrpc: '2.0',
-          error: {
-            code: -32000,
-            message: 'Bad Request: missing session or not an initialize POST',
-          },
-          id: null,
-        })
+    let released = false
+    const release = (): void => {
+      if (released) {
         return
       }
+      released = true
+      void server.close()
+    }
+    res.on('close', release)
 
-      const runTransport = async (): Promise<void> => {
-        await transport!.handleRequest(req, res, req.body)
+    try {
+      const initializing = isInitializeRequest(req.body)
+      const client = initializing
+        ? extractClientInfoFromInitializeBody(req.body)
+        : { clientName: 'unknown', clientVersion: 'unknown' }
+      const metricsContext = buildRequestMetricsContext(req, client)
+
+      if (initializing) {
+        getMetricsWriter().enqueue({
+          kind: 'session_open',
+          ts: Date.now(),
+          actorKey: metricsContext.actorKey,
+          clientName: metricsContext.clientName,
+          clientVersion: metricsContext.clientVersion,
+        })
       }
 
-      if (metricsContext) {
-        await metricsRequestContext.run(metricsContext, runTransport)
-      } else {
-        await runTransport()
-      }
+      await server.connect(transport)
+      await metricsRequestContext.run(metricsContext, async () => {
+        await transport.handleRequest(req, res, req.body)
+      })
     } catch (error) {
       console.error('[fyp-mcp] MCP HTTP error:', error)
       if (!res.headersSent) {

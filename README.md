@@ -79,7 +79,9 @@ If you only see one tool in that line, the running binary is stale.
 
 ## Usage metrics (HTTP lab)
 
-Gateway appends events to SQLite when `MCP_METRICS_DB` is set (`session_open`, `tool_call` with optional payment fields for future x402). Operator UI lives in [`metrics-ui/`](./metrics-ui/) (Vue + Tailwind + ECharts).
+HTTP is stateless. Each POST builds a fresh server, no session id is issued, and a process restart does not invalidate an install. GET and DELETE on `/mcp` return 405 (no server-push stream, no session to close).
+
+Gateway appends events to SQLite when `MCP_METRICS_DB` is set (`session_open` on `initialize`, with the client name; `tool_call` on later requests, client name `unknown`, plus optional payment fields for future x402). Operator UI lives in [`metrics-ui/`](./metrics-ui/) (Vue + Tailwind + ECharts).
 
 ```bash
 npm run start:http          # MCP on :3000
