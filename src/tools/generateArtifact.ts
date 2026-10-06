@@ -17,7 +17,10 @@ export function registerGenerateArtifactTool(server: McpServer, processor: TaskP
       description: GENERATE_ARTIFACT_DESCRIPTION,
       inputSchema: generateArtifactInputShape,
     },
-    async (input) =>
-      processor.submit({ kind: 'generate', payload: parseGenerateArtifactInput(input) }),
+    async (input, signal) =>
+      processor.submit(
+        { kind: 'generate', payload: parseGenerateArtifactInput(input) },
+        { signal },
+      ),
   )
 }

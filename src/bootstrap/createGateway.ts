@@ -10,13 +10,13 @@ export type Gateway = {
   server: McpServer
 }
 
-export function createGateway(): Gateway {
-  const processor = new LocalTaskProcessor()
+/** Stdio uses the in-process default. Hosted HTTP passes one shared worker pool. */
+export function createGateway(processor: TaskProcessor = new LocalTaskProcessor()): Gateway {
   const server = createMcpServer()
   registerTools(server, processor)
   return { processor, server }
 }
 
-export function createGatewayServer(): McpServer {
-  return createGateway().server
+export function createGatewayServer(processor?: TaskProcessor): McpServer {
+  return createGateway(processor).server
 }
