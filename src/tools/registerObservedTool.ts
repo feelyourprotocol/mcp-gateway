@@ -15,11 +15,15 @@ export function registerObservedTool(
   server: McpServer,
   toolName: string,
   config: ObservedToolConfig,
-  run: (input: unknown) => Promise<unknown>,
+  run: (input: unknown, signal?: AbortSignal) => Promise<unknown>,
 ): void {
-  server.registerTool(toolName, config, async (input: unknown) => {
+  // Tools with an input schema receive `(input, extra)`. `extra.signal` aborts when the
+  // HTTP request goes away (the server closes with the response), so queued or running
+  // engine work for a vanished caller is dropped.
+  server.registerTool(toolName, config, async (input: unknown, extra?: unknown) => {
     const started = Date.now()
-    const result: CallToolResult = await runToolHandler(async () => run(input))
+    const signal = (extra as { signal?: AbortSignal } | undefined)?.signal
+    const result: CallToolResult = await runToolHandler(async () => run(input, signal))
     const ctx = getRequestMetricsContext()
     if (ctx) {
       getMetricsWriter().enqueue({

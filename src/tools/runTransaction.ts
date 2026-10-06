@@ -17,7 +17,10 @@ export function registerRunTransactionTool(server: McpServer, processor: TaskPro
       description: RUN_TRANSACTION_DESCRIPTION,
       inputSchema: runTransactionInputShape,
     },
-    async (input) =>
-      processor.submit({ kind: 'transaction', payload: parseRunTransactionInput(input) }),
+    async (input, signal) =>
+      processor.submit(
+        { kind: 'transaction', payload: parseRunTransactionInput(input) },
+        { signal },
+      ),
   )
 }

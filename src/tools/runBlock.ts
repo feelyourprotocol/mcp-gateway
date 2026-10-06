@@ -14,6 +14,7 @@ export function registerRunBlockTool(server: McpServer, processor: TaskProcessor
       description: RUN_BLOCK_DESCRIPTION,
       inputSchema: runBlockInputShape,
     },
-    async (input) => processor.submit({ kind: 'block', payload: parseRunBlockInput(input) }),
+    async (input, signal) =>
+      processor.submit({ kind: 'block', payload: parseRunBlockInput(input) }, { signal }),
   )
 }

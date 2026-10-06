@@ -14,6 +14,11 @@ export type SimulationTask =
   | { kind: 'inspect'; payload: InspectInput }
   | { kind: 'probe' }
 
+export type SubmitOptions = {
+  /** Aborts queued work, and stops running work where the processor can (worker pool). */
+  signal?: AbortSignal
+}
+
 export interface TaskProcessor {
-  submit(task: SimulationTask): Promise<unknown>
+  submit(task: SimulationTask, options?: SubmitOptions): Promise<unknown>
 }

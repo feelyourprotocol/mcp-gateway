@@ -17,7 +17,7 @@ export function registerInspectArtifactTool(server: McpServer, processor: TaskPr
       description: INSPECT_ARTIFACT_DESCRIPTION,
       inputSchema: inspectArtifactInputShape,
     },
-    async (input) =>
-      processor.submit({ kind: 'inspect', payload: parseInspectArtifactInput(input) }),
+    async (input, signal) =>
+      processor.submit({ kind: 'inspect', payload: parseInspectArtifactInput(input) }, { signal }),
   )
 }

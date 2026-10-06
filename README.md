@@ -81,6 +81,8 @@ If you only see one tool in that line, the running binary is stale.
 
 HTTP is stateless. Each POST builds a fresh server, no session id is issued, and a process restart does not invalidate an install. GET and DELETE on `/mcp` return 405 (no server-push stream, no session to close).
 
+HTTP runs engine work on one worker thread per core (`os.availableParallelism()`), so a heavy call cannot block `/healthz` or other clients. One `WorkerPool` is created in `src/http/index.ts` and shared by every request. Limits are constants in `src/engine/WorkerPool.ts`, with no env settings: 15 s wall clock per call (the worker is terminated, result `execution_timeout`), 4 queued calls (the next gets `server_busy`), 256 MB heap per worker. A caller that disconnects cancels its queued or running call. `describe_capabilities` stays on the main thread. Stdio keeps the in-process `LocalTaskProcessor`.
+
 Gateway appends events to SQLite when `MCP_METRICS_DB` is set (`session_open` on `initialize`, with the client name; `tool_call` on later requests, client name `unknown`, plus optional payment fields for future x402). Operator UI lives in [`metrics-ui/`](./metrics-ui/) (Vue + Tailwind + ECharts).
 
 ```bash

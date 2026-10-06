@@ -14,6 +14,7 @@ export function registerRunBytecodeTool(server: McpServer, processor: TaskProces
       description: RUN_BYTECODE_DESCRIPTION,
       inputSchema: runBytecodeInputShape,
     },
-    async (input) => processor.submit({ kind: 'simulate', payload: parseRunBytecodeInput(input) }),
+    async (input, signal) =>
+      processor.submit({ kind: 'simulate', payload: parseRunBytecodeInput(input) }, { signal }),
   )
 }

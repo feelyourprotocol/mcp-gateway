@@ -43,14 +43,15 @@ Do **not** add per-EIP MCP tools (e.g. `simulate_eip8024`) or per-fork tools (e.
 | `src/tools/` | MCP tool registration + descriptions |
 | `src/schemas/` | Zod input shapes — **runtime source of truth** |
 | `schemas/` | Published `*.input.json` + `manifest.json` — mirror to `website/mcp-docs/public/schemas/` |
-| `src/engine/TaskProcessor.ts` | Seam for worker pool / queue later |
+| `src/engine/TaskProcessor.ts` | Seam: `LocalTaskProcessor` (stdio, tests) or `WorkerPool` (hosted HTTP, shared, one worker per core) |
+| `src/engine/runSimulationTask.ts` | The one task-kind to engine-call switch, used by both processors and the worker |
 | `src/index.ts` | stdio entry |
 | `src/http/` | HTTP transport (planned production) |
 
 ## Adding or changing a tool
 
 1. Implement engine support first (if new query shape)
-2. Extend `TaskProcessor` + `LocalTaskProcessor`
+2. Extend `SimulationTask` and `runSimulationTask` (both `LocalTaskProcessor` and the `WorkerPool` worker use it); pass `signal` through `processor.submit`
 3. Add `src/tools/*.ts`, register in `registerTools.ts`
 4. Add Zod in `src/schemas/`, published JSON in `schemas/` (update `manifest.json`), copy to website `mcp-docs/public/schemas/`
 5. Update `TOOL_NAMES` in `src/server/constants.ts`

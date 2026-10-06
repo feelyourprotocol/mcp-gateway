@@ -4,6 +4,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from '@modelcontextprotocol/sdk/types.js'
 
 import { createGatewayServer } from '../bootstrap/createGateway.js'
+import type { TaskProcessor } from '../engine/TaskProcessor.js'
 import { computeActorKey } from '../metrics/actor.js'
 import { getMetricsWriter } from '../metrics/globalWriter.js'
 import { clientIpFromRequest, extractClientInfoFromInitializeBody } from '../metrics/httpHelpers.js'
@@ -13,6 +14,8 @@ import { SERVER_NAME, SERVER_VERSION, TOOL_NAMES } from '../server/constants.js'
 
 export type CreateHttpAppOptions = {
   allowedHosts?: string[]
+  /** Shared across requests. The HTTP entry passes the worker pool. Defaults to in-process. */
+  processor?: TaskProcessor
 }
 
 function buildRequestMetricsContext(
@@ -81,7 +84,7 @@ export function createHttpApp(options: CreateHttpAppOptions = {}): Express {
   app.delete('/mcp', methodNotAllowed)
 
   async function handleMcpPost(req: Request, res: Response): Promise<void> {
-    const server = createGatewayServer()
+    const server = createGatewayServer(options.processor)
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
     })
