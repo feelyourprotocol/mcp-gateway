@@ -40,13 +40,16 @@ export const RUN_BYTECODE_DESCRIPTION = [
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first for lineage, eipIntroductions, runnable EIP modules, and opcode encoding.',
   'Limits: max gas 30000000 (default 1000000), max bytecode 24576 bytes, max trace 10000 steps.',
+  'Tell the user call gas and stack/return in prose — read gasUsed from the JSON but do not lead with that field name.',
 ].join(' ')
 
 export const RUN_TRANSACTION_DESCRIPTION = [
   'Run an Ethereum call or contract-creation transaction under a fork / EIP configuration (VM transaction execution).',
   'Sender is impersonated from the `from` address — no private key required.',
   'Returns paid gasUsed (gasUsedScope: transaction), optional Glamsterdam txRegularGas / txStateGas,',
+  'regularGas parts (base, recipient, value, calldata, floorUplift, execution) and recipientPrestate,',
   'receipt logs / decodedLogs (EIP-7708 Transfer decorations), provenance, and for successful creation createdAddress / deployedCodeSize.',
+  'When paid regular gas differs between transactions, explain the gap from regularGas parts — not from txStateGas / account creation.',
   'Set to for a call. Omit to for contract creation; data is then initcode (EIP-7954 size-limit experiments).',
   'Use when the question is a generic transaction on any lineage fork, a wallet gasLimit, first-touch transfer,',
   'paid tx gas, receipt logs, or txStateGas (EIP-8037 / new-slot SSTORE).',
@@ -60,13 +63,16 @@ export const RUN_TRANSACTION_DESCRIPTION = [
   'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: default gas 1000000; tool ceiling 110000000 for Glamsterdam state-heavy creation, while earlier fork validity rules still apply.',
+  'Tell the user paid gas, wallet gasLimit, logs, and regularGas parts in prose — not gasUsed / txStateGas field names unless they want raw JSON.',
 ].join(' ')
 
 export const RUN_BLOCK_DESCRIPTION = [
   'Run 1–8 impersonated Ethereum transactions as one lab block under a fork / EIP configuration.',
   'Senders are impersonated from each `from` address — no private key required.',
   'Returns header snapshot (number, timestamp, gasUsed, optional slotNumber), per-tx paid gas / logs,',
-  'and provenance. Lab mode generates header fields and skips chain header checks.',
+  'regularGas breakdown and optional regularGasDelta when per-tx regular totals differ, and provenance.',
+  'When receipts disagree on paid regular gas, explain from regularGas / regularGasDelta — not from txStateGas.',
+  'Lab mode generates header fields and skips chain header checks.',
   'Use when the question needs a header slot (EIP-7843 SLOTNUM), several txs in one block, a header timestamp/number,',
   'or a generic lab block on any lineage fork. accounts[] seeds contract and sender prestate like run_transaction.',
   'Optional header.slotNumber is Glamsterdam only. Paid gas of a single transfer still belongs on run_transaction.',
@@ -74,6 +80,7 @@ export const RUN_BLOCK_DESCRIPTION = [
   'Default fork is glamsterdam (preview). Use fusaka or a historical fork when the user names that fork.',
   'Run once on the fork the user named; do not also call the predecessor unless they asked for a before/after comparison.',
   'Call describe_capabilities first. Limits: max 8 transactions, max gas 30000000 (default 1000000 per tx).',
+  'Tell the user per-receipt paid gas and regularGasDelta in prose — not transactions[].gasUsed or header field names unless they want raw JSON.',
 ].join(' ')
 
 export const GENERATE_ARTIFACT_DESCRIPTION = [

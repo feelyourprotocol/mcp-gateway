@@ -31,4 +31,7 @@ export const SERVER_INSTRUCTIONS = [
   'The agent builds accounts[] from natural language; the server validates and applies it — no prefabricated contracts or demo worlds.',
   'run_bytecode: the program under test is bytecode; other contracts and callers are accounts[].',
   'Callers supply bytecode or transaction fields; this server does not ship demo programs.',
+  'When you report results to the user, use plain language — paid gas, call gas (bytecode frame),',
+  'regular-gas breakdown, state gas, block header total, prefunded storage — not JSON field names',
+  '(gasUsed, txRegularGas, accounts[], gasUsedScope) unless they ask for raw fields or a paste of the tool JSON.',
 ].join(' ')
