@@ -40,6 +40,8 @@ describe('batchingSqliteWriter', () => {
       settlement: 'unpaid',
       amountMicroUsdc: null,
       asset: null,
+      forkId: 'glamsterdam',
+      eipsJson: '[7928]',
     })
     writer.flush()
     writer.close()
@@ -53,6 +55,11 @@ describe('batchingSqliteWriter', () => {
       { kind: 'session_open', tool: null },
       { kind: 'tool_call', tool: 'run_bytecode' },
     ])
+    const forkRow = db
+      .prepare('SELECT fork_id, eips_json FROM events WHERE kind = ?')
+      .get('tool_call') as { fork_id: string; eips_json: string }
+    expect(forkRow.fork_id).toBe('glamsterdam')
+    expect(forkRow.eips_json).toBe('[7928]')
     db.close()
   })
 })

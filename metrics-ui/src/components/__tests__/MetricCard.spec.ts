@@ -18,6 +18,29 @@ describe('MetricCard', () => {
     expect(wrapper.find('[data-card-id="tool-calls"]').exists()).toBe(true)
   })
 
+  it('shows fingerprint subtitle', async () => {
+    const card = DEMO_CARDS.find((c) => c.id === 'distinct-fingerprints')!
+    const wrapper = mount(MetricCard, {
+      props: { card, window: '7d' },
+      global: {
+        stubs: { MetricChart: true },
+      },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('unique for the whole window')
+  })
+
+  it('renders clients table', async () => {
+    const card = DEMO_CARDS.find((c) => c.id === 'clients')!
+    const wrapper = mount(MetricCard, {
+      props: { card, window: '7d' },
+    })
+    await flushPromises()
+    expect(wrapper.text()).toContain('cursor-agent')
+    expect(wrapper.text()).toContain('Sessions')
+    expect(wrapper.text()).toContain('hosted HTTP server')
+  })
+
   it('shows empty hint for revenue card', async () => {
     const card = DEMO_CARDS.find((c) => c.id === 'revenue-over-time')!
     const wrapper = mount(MetricCard, {

@@ -33,9 +33,10 @@ export function createBatchingSqliteWriter(options: BatchingSqliteWriterOptions)
   const insertToolCall = db.prepare(`
     INSERT INTO events (
       ts, kind, actor_key, client_name, client_version,
-      tool, outcome, duration_ms, settlement, amount_micro_usdc, asset
+      tool, outcome, duration_ms, settlement, amount_micro_usdc, asset,
+      fork_id, eips_json
     )
-    VALUES (?, 'tool_call', ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, 'tool_call', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `)
 
   const queue: MetricsEvent[] = []
@@ -63,6 +64,8 @@ export function createBatchingSqliteWriter(options: BatchingSqliteWriterOptions)
             event.settlement,
             event.amountMicroUsdc,
             event.asset,
+            event.forkId,
+            event.eipsJson,
           )
         }
       }

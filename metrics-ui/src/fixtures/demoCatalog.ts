@@ -1,14 +1,25 @@
 import type { CardDefinition } from '@/types/metrics'
 
+const TOOL_NAMES = [
+  'describe_capabilities',
+  'run_bytecode',
+  'run_transaction',
+  'run_block',
+  'generate_artifact',
+  'inspect_artifact',
+] as const
+
 export const DEMO_CARDS: CardDefinition[] = [
   {
     id: 'distinct-fingerprints',
     title: 'Distinct agent fingerprints',
+    subtitle: 'Big number: unique for the whole window. Line: new fingerprints per day.',
     measure: 'count_distinct_actor',
     filter: { kind: 'session_open' },
     grains: ['hour', 'day', 'week'],
     defaultGrain: 'day',
     chart: 'line',
+    fullWidth: true,
   },
   {
     id: 'sessions',
@@ -20,6 +31,20 @@ export const DEMO_CARDS: CardDefinition[] = [
     chart: 'line',
   },
   {
+    id: 'clients',
+    title: 'Clients',
+    subtitle:
+      'Session opens on the hosted HTTP server. Local stdio connectors are not counted here.',
+    measure: 'count',
+    split: 'client',
+    filter: { kind: 'session_open' },
+    grains: ['day'],
+    defaultGrain: 'day',
+    chart: 'table',
+    hideGrainControls: true,
+    fullWidth: true,
+  },
+  {
     id: 'tool-calls',
     title: 'Tool usage',
     measure: 'count',
@@ -28,6 +53,33 @@ export const DEMO_CARDS: CardDefinition[] = [
     grains: ['hour', 'day', 'week'],
     defaultGrain: 'day',
     chart: 'stacked-bar',
+    fillSeries: [...TOOL_NAMES],
+    fullWidth: true,
+  },
+  {
+    id: 'hardforks',
+    title: 'Hardforks',
+    note: 'omitted means the caller left fork out; the engine default preview fork applies at runtime.',
+    measure: 'count',
+    split: 'fork',
+    filter: { kind: 'tool_call' },
+    grains: ['hour', 'day', 'week'],
+    defaultGrain: 'day',
+    chart: 'stacked-bar',
+    fullWidth: true,
+  },
+  {
+    id: 'eip-numbers',
+    title: 'EIP numbers',
+    measure: 'count',
+    split: 'eip',
+    filter: { kind: 'tool_call' },
+    grains: ['hour', 'day', 'week'],
+    defaultGrain: 'day',
+    chart: 'stacked-bar',
+    emptyHint:
+      'No à-la-carte EIP lists yet. Generic fork prompts without fork.eips do not appear here.',
+    fullWidth: true,
   },
   {
     id: 'tool-errors',

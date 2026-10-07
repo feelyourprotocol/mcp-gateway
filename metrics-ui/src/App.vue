@@ -67,7 +67,7 @@ onMounted(async () => {
           :key="card.id"
           :card="card"
           :window="window"
-          class="lg:[&:nth-child(1)]:col-span-2"
+          :class="card.fullWidth ? 'lg:col-span-2' : undefined"
         />
       </div>
     </main>

@@ -3,6 +3,7 @@ import type { AnySchema, ZodRawShapeCompat } from '@modelcontextprotocol/sdk/ser
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 
 import { runToolHandler } from '../errors/toMcpError.js'
+import { forkFactsFromToolInput } from '../metrics/forkFactsFromToolInput.js'
 import { getMetricsWriter } from '../metrics/globalWriter.js'
 import { getRequestMetricsContext } from '../metrics/requestContext.js'
 
@@ -26,6 +27,7 @@ export function registerObservedTool(
     const result: CallToolResult = await runToolHandler(async () => run(input, signal))
     const ctx = getRequestMetricsContext()
     if (ctx) {
+      const forkFacts = forkFactsFromToolInput(toolName, input)
       getMetricsWriter().enqueue({
         kind: 'tool_call',
         ts: started,
@@ -38,6 +40,8 @@ export function registerObservedTool(
         settlement: ctx.settlement,
         amountMicroUsdc: ctx.amountMicroUsdc,
         asset: ctx.asset,
+        forkId: forkFacts.forkId,
+        eipsJson: forkFacts.eipsJson,
       })
     }
     return result

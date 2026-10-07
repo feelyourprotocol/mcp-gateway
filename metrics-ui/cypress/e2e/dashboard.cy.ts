@@ -3,9 +3,14 @@ describe('MCP usage dashboard', () => {
     cy.visit('/')
     cy.contains('MCP usage')
     cy.contains('Tool usage')
+    cy.contains('Clients')
     cy.get('[data-card-id="tool-calls"]').within(() => {
-      cy.contains('run_bytecode', { timeout: 10_000 })
+      cy.contains('generate_artifact', { timeout: 10_000 })
+      cy.contains('inspect_artifact')
       cy.contains('button', 'week').click()
+    })
+    cy.get('[data-card-id="clients"]').within(() => {
+      cy.contains('cursor-agent')
     })
     cy.viewport(375, 812)
     cy.get('[data-card-id="tool-calls"]').should('be.visible')

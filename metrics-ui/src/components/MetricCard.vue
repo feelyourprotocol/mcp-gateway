@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 
 import { fetchCardQuery } from '@/api/client'
 import MetricChart from '@/components/MetricChart.vue'
+import MetricTable from '@/components/MetricTable.vue'
 import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
 import { headlineValue } from '@/lib/toChartOption'
 
@@ -61,12 +62,20 @@ watch(
     <header class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div>
         <h2 class="text-sm font-semibold text-slate-800">{{ card.title }}</h2>
+        <p v-if="card.subtitle" class="mt-1 max-w-prose text-xs text-slate-500">
+          {{ card.subtitle }}
+        </p>
         <p class="font-mono text-2xl font-bold tabular-nums text-slate-900">
           {{ headline
           }}<span class="text-base font-normal text-slate-500">{{ headlineSuffix }}</span>
         </p>
       </div>
-      <div class="flex flex-wrap gap-2" role="group" aria-label="Time grain">
+      <div
+        v-if="!card.hideGrainControls"
+        class="flex flex-wrap gap-2"
+        role="group"
+        aria-label="Time grain"
+      >
         <button
           v-for="g in card.grains"
           :key="g"
@@ -92,6 +101,10 @@ watch(
     >
       {{ card.emptyHint }}
     </p>
+    <MetricTable v-else-if="result && card.chart === 'table'" :result="result" />
     <MetricChart v-else-if="result" :card="card" :result="result" />
+    <p v-if="card.note && result && !result.isEmpty" class="text-xs text-slate-500">
+      {{ card.note }}
+    </p>
   </article>
 </template>
