@@ -22,7 +22,7 @@ const label: Record<LivenessState, string> = {
   down: 'MCP down',
 }
 
-let timer: ReturnType<typeof window.setInterval> | undefined
+let timer: number | undefined
 
 async function refresh(): Promise<void> {
   try {

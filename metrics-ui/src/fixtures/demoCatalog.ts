@@ -12,17 +12,15 @@ const TOOL_NAMES = [
 /** Mirror of server METRICS_CARD_REGISTRY for offline dev. */
 export const DEMO_CARDS: CardDefinition[] = [
   {
-    id: 'mcp-liveness',
+    id: 'mcp-liveness-timeline',
     title: 'MCP liveness',
     dataSource: 'health',
     helpText:
-      'Loopback polls of GET /healthz on the MCP HTTP gateway (default every 60s). Green buckets are successful checks; red are failures or timeouts. The headline is uptime percent in the selected window.',
+      'Uptime for each hour, day, or week inside the range selected at the top. The line connects those points, so a stretch of failed checks drops and stays down until checks pass again. The headline is uptime for the whole range and does not change when you switch hour, day, or week.',
     measure: 'uptime_percent',
     grains: ['hour', 'day', 'week'],
     defaultGrain: 'day',
-    chart: 'stacked-bar',
-    fullWidth: true,
-    fillSeries: ['up', 'down'],
+    chart: 'line',
   },
   {
     id: 'distinct-fingerprints',
@@ -34,7 +32,6 @@ export const DEMO_CARDS: CardDefinition[] = [
     grains: ['hour', 'day', 'week'],
     defaultGrain: 'day',
     chart: 'line',
-    fullWidth: true,
   },
   {
     id: 'sessions',
@@ -49,9 +46,9 @@ export const DEMO_CARDS: CardDefinition[] = [
   },
   {
     id: 'clients',
-    title: 'Clients',
+    title: 'Client / Versions',
     helpText:
-      'Client name and version from initialize, ranked by how many sessions they opened. Only the hosted HTTP lab — local stdio MCP does not write here.',
+      'Name and version reported at initialize, ranked by sessions. Clients counts names. Versions counts each name and version pair. Local stdio MCP does not write here.',
     measure: 'count',
     split: 'client',
     filter: { kind: 'session_open' },

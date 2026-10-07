@@ -88,3 +88,49 @@ export function runHealthLivenessQuery(
     isEmpty: rows.length === 0,
   }
 }
+
+/** One uptime percent per bucket. Headline matches the strip for the same window. */
+export function runHealthUptimeQuery(
+  db: DatabaseSync,
+  card: CardDefinition,
+  window: MetricsWindow,
+  grain: MetricsGrain,
+  nowMs: number = Date.now(),
+): CardQueryResult {
+  const strip = runHealthLivenessQuery(db, card, window, grain, nowMs)
+  const byBucket = new Map<number, { up: number; down: number }>()
+  for (const row of strip.series) {
+    const cell = byBucket.get(row.bucketStart) ?? { up: 0, down: 0 }
+    if (row.series === 'up') {
+      cell.up += row.value
+    } else if (row.series === 'down') {
+      cell.down += row.value
+    }
+    byBucket.set(row.bucketStart, cell)
+  }
+
+  const series = [...byBucket.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .flatMap(([bucketStart, cell]) => {
+      const total = cell.up + cell.down
+      if (total === 0) {
+        return []
+      }
+      return [
+        {
+          bucketStart,
+          series: 'uptime',
+          value: Math.round((cell.up / total) * 1000) / 10,
+        },
+      ]
+    })
+
+  return {
+    cardId: card.id,
+    window,
+    grain,
+    series,
+    summary: strip.summary,
+    isEmpty: strip.isEmpty,
+  }
+}

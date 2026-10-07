@@ -128,6 +128,39 @@ describe('runCardQuery', () => {
     db.close()
   })
 
+  it('keeps sparse bar charts on the same hour grid', () => {
+    const db = openTempDb()
+    const now = Date.UTC(2026, 3, 2, 15, 30, 0)
+    const errorAt = now - 3 * 3_600_000
+    db.prepare(
+      `INSERT INTO events (ts, kind, tool, outcome, settlement, fork_id, eips_json) VALUES (?, 'tool_call', 'run_bytecode', 'error', 'unpaid', 'glamsterdam', ?)`,
+    ).run(errorAt, '[7928]')
+    db.prepare(
+      `INSERT INTO events (ts, kind, tool, outcome, settlement, fork_id) VALUES (?, 'tool_call', 'run_bytecode', 'ok', 'unpaid', 'fusaka')`,
+    ).run(now - 10 * 3_600_000)
+
+    const bucketCount = (id: string, grain: 'hour' | 'day' = 'hour') => {
+      const card = getCardDefinition(id)!
+      const result = runCardQuery(db, card, '24h', grain, now)
+      return new Set(result.series.map((row) => row.bucketStart)).size
+    }
+
+    const tools = bucketCount('tool-calls')
+    expect(tools).toBeGreaterThanOrEqual(24)
+    expect(bucketCount('tool-errors')).toBe(tools)
+    expect(bucketCount('hardforks')).toBe(tools)
+    expect(bucketCount('eip-numbers')).toBe(tools)
+    expect(bucketCount('settlement-mix')).toBe(tools)
+
+    const errors = runCardQuery(db, getCardDefinition('tool-errors')!, '24h', 'hour', now)
+    const byDay = runCardQuery(db, getCardDefinition('tool-errors')!, '24h', 'day', now)
+    expect(errors.summary).toBe(1)
+    expect(byDay.summary).toBe(1)
+    expect(errors.series.filter((row) => row.value === 0).length).toBeGreaterThan(20)
+    expect(bucketCount('tool-errors', 'hour')).toBeGreaterThan(bucketCount('tool-errors', 'day'))
+    db.close()
+  })
+
   it('returns empty eip card when no eips_json rows', () => {
     const db = openTempDb()
     const now = Date.UTC(2026, 2, 8, 12, 0, 0)
@@ -160,7 +193,8 @@ describe('runCardQuery', () => {
     const result = runCardQuery(db, card, '7d', 'day', now + 86_400_000)
     expect(result.series[0]?.series).toBe('cursor-agent\t1.0')
     expect(result.series[0]?.value).toBe(2)
-    expect(result.summary).toBe(3)
+    expect(result.series).toHaveLength(2)
+    expect(result.summary).toBe(2)
     db.close()
   })
 })

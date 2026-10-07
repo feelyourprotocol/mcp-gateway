@@ -117,6 +117,13 @@ function computeSummary(rows: RawEventRow[], card: CardDefinition): number {
       }
       return total
     }
+    if (card.split === 'client') {
+      const versions = new Set<string>()
+      for (const row of rows) {
+        versions.add(`${row.client_name ?? 'unknown'}\t${row.client_version ?? 'unknown'}`)
+      }
+      return versions.size
+    }
     return rows.length
   }
   if (card.measure === 'count_distinct_actor') {
@@ -129,17 +136,6 @@ function computeSummary(rows: RawEventRow[], card: CardDefinition): number {
     return actors.size
   }
   return rows.reduce((sum, row) => sum + (row.amount_micro_usdc ?? 0), 0)
-}
-
-function ensureFillSeries(seriesMap: Map<string, Cell>, fillSeries: string[] | undefined): void {
-  if (!fillSeries) {
-    return
-  }
-  for (const name of fillSeries) {
-    if (!seriesMap.has(name)) {
-      seriesMap.set(name, emptyCell())
-    }
-  }
 }
 
 export function runCardQuery(
@@ -224,17 +220,31 @@ export function runCardQuery(
     }
   }
 
+  const discovered = new Set<string>(card.fillSeries ?? [])
+  for (const seriesMap of buckets.values()) {
+    for (const name of seriesMap.keys()) {
+      discovered.add(name)
+    }
+  }
+  const ordered = [
+    ...(card.fillSeries ?? []),
+    ...[...discovered].filter((name) => !(card.fillSeries ?? []).includes(name)).sort(),
+  ]
+
   const seriesOut: CardQueryResult['series'] = []
   const step = grainStepMs(grain)
 
   for (let t = bucketStartUtc(fromTs, grain); t < toTs; t += step) {
     const seriesMap = buckets.get(t) ?? new Map<string, Cell>()
-    ensureFillSeries(seriesMap, card.fillSeries)
-    if (seriesMap.size === 0) {
+    if (ordered.length === 0) {
+      if (!card.split) {
+        seriesOut.push({ bucketStart: t, series: SINGLE_SERIES, value: 0 })
+      }
       continue
     }
-    for (const [series, cell] of seriesMap) {
-      seriesOut.push({ bucketStart: t, series, value: cellValue(cell, card.measure) })
+    for (const name of ordered) {
+      const cell = seriesMap.get(name) ?? emptyCell()
+      seriesOut.push({ bucketStart: t, series: name, value: cellValue(cell, card.measure) })
     }
   }
 

@@ -5,15 +5,24 @@ import { fetchCardQuery } from '@/api/client'
 import CardHelpPopover from '@/components/CardHelpPopover.vue'
 import MetricChart from '@/components/MetricChart.vue'
 import MetricTable from '@/components/MetricTable.vue'
-import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
+import type { ClientGroup } from '@/lib/clientTable'
+import { clientTableRows } from '@/lib/clientTable'
+import { grainForWindow } from '@/lib/grainForWindow'
 import { headlineValue } from '@/lib/toChartOption'
+import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
+
+const SCALE_HELP =
+  'Scale: how this card splits the range selected at the top. Hour, Day, and Week redraw the chart. The headline stays the total for that range.'
+const GROUP_HELP =
+  'Group: Versions keeps one row per name and version, and the headline counts those pairs. Clients merges every version of a name into one row, and the headline counts names.'
 
 const props = defineProps<{
   card: CardDefinition
   window: MetricsWindow
 }>()
 
-const grain = ref<MetricsGrain>(props.card.defaultGrain)
+const grain = ref<MetricsGrain>(grainForWindow(props.card, props.window))
+const clientGroup = ref<ClientGroup>('version')
 const result = ref<CardQueryResult | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -21,6 +30,9 @@ const error = ref<string | null>(null)
 const headline = computed(() => {
   if (!result.value) {
     return '—'
+  }
+  if (props.card.id === 'clients') {
+    return String(clientTableRows(result.value, clientGroup.value).length)
   }
   return headlineValue(result.value, props.card)
 })
@@ -58,14 +70,14 @@ watch(
 watch(
   () => props.window,
   () => {
-    grain.value = props.card.defaultGrain
+    grain.value = grainForWindow(props.card, props.window)
   },
 )
 </script>
 
 <template>
   <article
-    class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+    class="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
     :data-card-id="card.id"
   >
     <header class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -79,26 +91,44 @@ watch(
           }}<span class="text-base font-normal text-slate-500">{{ headlineSuffix }}</span>
         </p>
       </div>
-      <div
-        v-if="!card.hideGrainControls"
-        class="flex flex-wrap gap-2"
-        role="group"
-        aria-label="Time grain"
-      >
-        <button
-          v-for="g in card.grains"
-          :key="g"
-          type="button"
-          class="min-h-11 rounded-lg px-3 text-xs font-medium uppercase tracking-wide transition sm:min-h-8"
-          :class="
-            grain === g
-              ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
-              : 'border border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
-          "
-          @click="grain = g"
-        >
-          {{ g }}
-        </button>
+      <div v-if="card.id === 'clients'" class="flex items-center gap-1">
+        <CardHelpPopover label="About grouping" align="end" :text="GROUP_HELP" />
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Group">
+          <button
+            v-for="mode in ['client', 'version'] as const"
+            :key="mode"
+            type="button"
+            class="min-h-11 rounded-lg px-3 text-xs font-medium transition sm:min-h-8"
+            :class="
+              clientGroup === mode
+                ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
+                : 'border border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
+            "
+            :aria-pressed="clientGroup === mode"
+            @click="clientGroup = mode"
+          >
+            {{ mode === 'client' ? 'Clients' : 'Versions' }}
+          </button>
+        </div>
+      </div>
+      <div v-else-if="!card.hideGrainControls" class="flex items-center gap-1">
+        <CardHelpPopover label="About the scale" align="end" :text="SCALE_HELP" />
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Scale">
+          <button
+            v-for="g in card.grains"
+            :key="g"
+            type="button"
+            class="min-h-11 rounded-lg px-3 text-xs font-medium uppercase tracking-wide transition sm:min-h-8"
+            :class="
+              grain === g
+                ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
+                : 'border border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300'
+            "
+            @click="grain = g"
+          >
+            {{ g }}
+          </button>
+        </div>
       </div>
     </header>
 
@@ -110,7 +140,11 @@ watch(
     >
       {{ card.emptyHint }}
     </p>
-    <MetricTable v-else-if="result && card.chart === 'table'" :result="result" />
+    <MetricTable
+      v-else-if="result && card.chart === 'table'"
+      :result="result"
+      :group="card.id === 'clients' ? clientGroup : 'version'"
+    />
     <MetricChart v-else-if="result" :card="card" :result="result" />
   </article>
 </template>

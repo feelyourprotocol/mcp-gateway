@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { insertHealthSample } from '../healthPoller.js'
 import { getCardDefinition } from '../query/cardRegistry.js'
-import { runHealthLivenessQuery } from '../query/runHealthLivenessQuery.js'
+import { runHealthLivenessQuery, runHealthUptimeQuery } from '../query/runHealthLivenessQuery.js'
 import { openMetricsDb } from '../server/openMetricsDb.js'
 
 describe('runHealthLivenessQuery', () => {
@@ -26,10 +26,15 @@ describe('runHealthLivenessQuery', () => {
     insertHealthSample(db, { ts: now, ok: true, statusCode: 200, durationMs: 10 })
     insertHealthSample(db, { ts: now + 60_000, ok: false, statusCode: 503, durationMs: 10 })
 
-    const card = getCardDefinition('mcp-liveness')!
+    const card = getCardDefinition('mcp-liveness-timeline')!
     const result = runHealthLivenessQuery(db, card, '7d', 'day', now + 120_000)
     expect(result.summary).toBe(50)
     expect(result.series.some((row) => row.series === 'up' && row.value === 1)).toBe(true)
+
+    const line = getCardDefinition('mcp-liveness-timeline')!
+    const uptime = runHealthUptimeQuery(db, line, '7d', 'day', now + 120_000)
+    expect(uptime.summary).toBe(50)
+    expect(uptime.series.some((row) => row.series === 'uptime' && row.value === 50)).toBe(true)
     db.close()
   })
 })

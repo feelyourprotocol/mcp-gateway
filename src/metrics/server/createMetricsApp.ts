@@ -6,7 +6,11 @@ import { type HealthPollerHandle, startHealthPoller } from '../healthPoller.js'
 import { deriveLivenessStatus, resolveLivenessOptions } from '../livenessStatus.js'
 import { getCardDefinition, METRICS_CARD_REGISTRY } from '../query/cardRegistry.js'
 import { purgeOldEvents, runCardQuery } from '../query/runCardQuery.js'
-import { getLatestHealthSample, runHealthLivenessQuery } from '../query/runHealthLivenessQuery.js'
+import {
+  getLatestHealthSample,
+  runHealthLivenessQuery,
+  runHealthUptimeQuery,
+} from '../query/runHealthLivenessQuery.js'
 import type { MetricsGrain, MetricsWindow } from '../query/types.js'
 import { defaultGrainForWindow } from '../query/window.js'
 import { openMetricsDb } from './openMetricsDb.js'
@@ -74,9 +78,11 @@ export function createMetricsApp(options: CreateMetricsAppOptions): MetricsAppBu
     const grain = grainParam as MetricsGrain
 
     const result =
-      card.dataSource === 'health'
-        ? runHealthLivenessQuery(db, card, window, grain)
-        : runCardQuery(db, card, window, grain)
+      card.dataSource === 'health' && card.chart === 'line'
+        ? runHealthUptimeQuery(db, card, window, grain)
+        : card.dataSource === 'health'
+          ? runHealthLivenessQuery(db, card, window, grain)
+          : runCardQuery(db, card, window, grain)
     res.json(result)
   })
 
