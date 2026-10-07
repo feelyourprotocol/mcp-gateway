@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:unit:ci": "vitest run",
-    "test:e2e": "start-server-and-test dev http://localhost:5174 'cypress run --e2e'",
+    "test:e2e": "start-server-and-test dev http://localhost:5177 'cypress run --e2e'",
     "typecheck": "vue-tsc --build",
     "lf": "prettier --write src/ cypress/ && eslint . --fix",
     "lf:ci": "eslint . && prettier -c src/ cypress/"

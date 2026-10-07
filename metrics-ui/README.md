@@ -4,7 +4,7 @@ Operator UI for gateway usage metrics. Demodata in dev; production is served by 
 
 ```bash
 npm install
-npm run dev          # http://localhost:5174 — fixtures only
+npm run dev          # http://localhost:5177 — fixtures only (override: PORT=5180 npm run dev)
 npm run dev:live     # proxy /api → :3001
 npm run build
 npm run test:unit:ci

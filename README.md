@@ -90,7 +90,7 @@ npm run start:http          # MCP on :3000
 MCP_METRICS_DB=/tmp/events.sqlite MCP_METRICS_PEPPER=dev npm run start:http
 MCP_METRICS_DB=/tmp/events.sqlite npm run start:metrics   # after metrics-ui build
 
-cd metrics-ui && npm ci && npm run dev   # :5174 with demo fixtures
+cd metrics-ui && npm ci && npm run dev   # :5177 demo fixtures (see website README dev ports)
 npm run metrics-ui:build
 ```
 
