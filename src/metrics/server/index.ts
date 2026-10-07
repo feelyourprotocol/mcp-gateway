@@ -10,7 +10,11 @@ if (!dbPath) {
   process.exit(1)
 }
 
-const app = createMetricsApp({ dbPath })
+const { app, healthPoller } = createMetricsApp({ dbPath })
+
+process.on('SIGTERM', () => {
+  healthPoller?.stop()
+})
 
 app.listen(port, host, () => {
   console.error(`[fyp-mcp-metrics] listening on http://${host}:${port}`)

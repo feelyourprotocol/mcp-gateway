@@ -18,7 +18,7 @@ describe('MetricCard', () => {
     expect(wrapper.find('[data-card-id="tool-calls"]').exists()).toBe(true)
   })
 
-  it('shows fingerprint subtitle', async () => {
+  it('shows help text after clicking the info control', async () => {
     const card = DEMO_CARDS.find((c) => c.id === 'distinct-fingerprints')!
     const wrapper = mount(MetricCard, {
       props: { card, window: '7d' },
@@ -27,18 +27,19 @@ describe('MetricCard', () => {
       },
     })
     await flushPromises()
-    expect(wrapper.text()).toContain('unique for the whole window')
+    expect(wrapper.text()).not.toContain('distinct fingerprints across')
+    await wrapper.get('[aria-label="About this metric"]').trigger('click')
+    expect(wrapper.text()).toContain('distinct fingerprints across')
   })
 
-  it('renders clients table', async () => {
+  it('renders clients table with scroll container', async () => {
     const card = DEMO_CARDS.find((c) => c.id === 'clients')!
     const wrapper = mount(MetricCard, {
       props: { card, window: '7d' },
     })
     await flushPromises()
     expect(wrapper.text()).toContain('cursor-agent')
-    expect(wrapper.text()).toContain('Sessions')
-    expect(wrapper.text()).toContain('hosted HTTP server')
+    expect(wrapper.find('.h-64.overflow-hidden').exists()).toBe(true)
   })
 
   it('shows empty hint for revenue card', async () => {

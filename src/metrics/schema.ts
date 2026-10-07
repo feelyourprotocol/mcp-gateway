@@ -26,12 +26,24 @@ CREATE TABLE IF NOT EXISTS tool_alias (
 );
 `
 
+const CREATE_HEALTH_SAMPLES_TABLE = `
+CREATE TABLE IF NOT EXISTS health_samples (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ts INTEGER NOT NULL,
+  ok INTEGER NOT NULL,
+  status_code INTEGER,
+  duration_ms INTEGER NOT NULL
+);
+`
+
 const EVENT_INDEXES = [
   'CREATE INDEX IF NOT EXISTS idx_events_ts ON events(ts)',
   'CREATE INDEX IF NOT EXISTS idx_events_kind_ts ON events(kind, ts)',
   'CREATE INDEX IF NOT EXISTS idx_events_tool_ts ON events(tool, ts)',
   'CREATE INDEX IF NOT EXISTS idx_events_settlement_ts ON events(settlement, ts)',
 ]
+
+const HEALTH_INDEXES = ['CREATE INDEX IF NOT EXISTS idx_health_samples_ts ON health_samples(ts)']
 
 /** Columns added after first deploy — guarded ALTER for existing SQLite files. */
 const COLUMN_MIGRATIONS: { name: string; ddl: string }[] = [
@@ -61,8 +73,12 @@ function ensureEventColumns(db: DatabaseSync): void {
 export function applyMetricsSchema(db: DatabaseSync): void {
   db.exec(CREATE_EVENTS_TABLE)
   db.exec(CREATE_TOOL_ALIAS_TABLE)
+  db.exec(CREATE_HEALTH_SAMPLES_TABLE)
   ensureEventColumns(db)
   for (const indexSql of EVENT_INDEXES) {
+    db.exec(indexSql)
+  }
+  for (const indexSql of HEALTH_INDEXES) {
     db.exec(indexSql)
   }
 }

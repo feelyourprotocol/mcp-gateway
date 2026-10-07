@@ -39,6 +39,9 @@ export function headlineValue(result: CardQueryResult, card: CardDefinition): st
   if (card.measure === 'sum_micro_usdc') {
     return (value / 1_000_000).toFixed(2)
   }
+  if (card.measure === 'uptime_percent') {
+    return value.toFixed(1)
+  }
   return String(value)
 }
 
@@ -69,11 +72,15 @@ export function toChartOption(
 
   const buildSeries = (name: string, index: number): LineSeriesOption | BarSeriesOption => {
     const color =
-      name === 'paid'
-        ? PAID_COLOR
-        : name === 'unpaid'
-          ? '#94a3b8'
-          : SERIES_PALETTE[index % SERIES_PALETTE.length]
+      name === 'up'
+        ? '#16a34a'
+        : name === 'down'
+          ? '#dc2626'
+          : name === 'paid'
+            ? PAID_COLOR
+            : name === 'unpaid'
+              ? '#94a3b8'
+              : SERIES_PALETTE[index % SERIES_PALETTE.length]
     const data = buckets.map((b) => lookup.get(`${b}:${name}`) ?? 0)
     const base = {
       name,
@@ -119,7 +126,13 @@ export function toChartOption(
         return `${first.axisValue ?? ''}<br/>${lines.join('<br/>')}`
       },
     },
-    legend: showLegend ? { type: 'plain', bottom: 0, width: '100%' } : { show: false },
+    legend: showLegend
+      ? {
+          type: card.chart === 'stacked-bar' && names.length > 3 ? 'scroll' : 'plain',
+          bottom: 0,
+          width: '100%',
+        }
+      : { show: false },
     xAxis: { type: 'category', data: categories, boundaryGap: card.chart === 'stacked-bar' },
     yAxis: { type: 'value', splitLine: { lineStyle: { color: '#e2e8f0' } } },
     series: names.map((name, index) => buildSeries(name, index)),

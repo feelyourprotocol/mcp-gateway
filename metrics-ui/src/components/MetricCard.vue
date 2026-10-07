@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 
 import { fetchCardQuery } from '@/api/client'
+import CardHelpPopover from '@/components/CardHelpPopover.vue'
 import MetricChart from '@/components/MetricChart.vue'
 import MetricTable from '@/components/MetricTable.vue'
 import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
@@ -24,7 +25,15 @@ const headline = computed(() => {
   return headlineValue(result.value, props.card)
 })
 
-const headlineSuffix = computed(() => (props.card.measure === 'sum_micro_usdc' ? ' USDC' : ''))
+const headlineSuffix = computed(() => {
+  if (props.card.measure === 'sum_micro_usdc') {
+    return ' USDC'
+  }
+  if (props.card.measure === 'uptime_percent') {
+    return '%'
+  }
+  return ''
+})
 
 async function load(): Promise<void> {
   loading.value = true
@@ -61,10 +70,10 @@ watch(
   >
     <header class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
       <div>
-        <h2 class="text-sm font-semibold text-slate-800">{{ card.title }}</h2>
-        <p v-if="card.subtitle" class="mt-1 max-w-prose text-xs text-slate-500">
-          {{ card.subtitle }}
-        </p>
+        <div class="flex flex-wrap items-center gap-1">
+          <h2 class="text-sm font-semibold text-slate-800">{{ card.title }}</h2>
+          <CardHelpPopover v-if="card.helpText" :text="card.helpText" />
+        </div>
         <p class="font-mono text-2xl font-bold tabular-nums text-slate-900">
           {{ headline
           }}<span class="text-base font-normal text-slate-500">{{ headlineSuffix }}</span>
@@ -103,8 +112,5 @@ watch(
     </p>
     <MetricTable v-else-if="result && card.chart === 'table'" :result="result" />
     <MetricChart v-else-if="result" :card="card" :result="result" />
-    <p v-if="card.note && result && !result.isEmpty" class="text-xs text-slate-500">
-      {{ card.note }}
-    </p>
   </article>
 </template>

@@ -2,7 +2,9 @@ export type MetricsWindow = '24h' | '7d' | '30d'
 
 export type MetricsGrain = 'hour' | 'day' | 'week'
 
-export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc'
+export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc' | 'uptime_percent'
+
+export type CardDataSource = 'events' | 'health'
 
 export type CardSplit = 'tool' | 'settlement' | 'outcome' | 'client' | 'fork' | 'eip'
 
@@ -15,6 +17,7 @@ export type CardFilter = {
 export type CardDefinition = {
   id: string
   title: string
+  dataSource?: CardDataSource
   measure: CardMeasure
   split?: CardSplit
   filter?: CardFilter
@@ -22,8 +25,7 @@ export type CardDefinition = {
   defaultGrain: MetricsGrain
   chart: 'line' | 'stacked-bar' | 'table'
   emptyHint?: string
-  subtitle?: string
-  note?: string
+  helpText?: string
   fillSeries?: string[]
   hideGrainControls?: boolean
   fullWidth?: boolean

@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { ChartBarSquareIcon } from '@heroicons/vue/24/outline'
 
 import { fetchCards } from '@/api/client'
+import LivenessIndicator from '@/components/LivenessIndicator.vue'
 import MetricCard from '@/components/MetricCard.vue'
 import type { CardDefinition, MetricsWindow } from '@/types/metrics'
 
@@ -40,21 +41,24 @@ onMounted(async () => {
             <h1 class="text-lg font-semibold text-slate-900">MCP usage</h1>
           </div>
         </div>
-        <div class="flex gap-2" role="group" aria-label="Time window">
-          <button
-            v-for="w in windows"
-            :key="w.id"
-            type="button"
-            class="min-h-11 flex-1 rounded-lg px-4 text-sm font-medium sm:min-h-9 sm:flex-none"
-            :class="
-              window === w.id
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
-                : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-            "
-            @click="window = w.id"
-          >
-            {{ w.label }}
-          </button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <LivenessIndicator />
+          <div class="flex gap-2" role="group" aria-label="Time window">
+            <button
+              v-for="w in windows"
+              :key="w.id"
+              type="button"
+              class="min-h-11 flex-1 rounded-lg px-4 text-sm font-medium sm:min-h-9 sm:flex-none"
+              :class="
+                window === w.id
+                  ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
+                  : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+              "
+              @click="window = w.id"
+            >
+              {{ w.label }}
+            </button>
+          </div>
         </div>
       </div>
     </header>

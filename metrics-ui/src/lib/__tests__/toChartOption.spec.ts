@@ -26,6 +26,12 @@ describe('toChartOption', () => {
     expect(result.summary).not.toBe(bucketSum)
   })
 
+  it('formats uptime headline with one decimal', () => {
+    const card = DEMO_CARDS.find((c) => c.id === 'mcp-liveness')!
+    const result = demoQueryForCard(card, '7d', 'day')
+    expect(headlineValue(result, card)).toBe('99.8')
+  })
+
   it('returns zero headline for empty revenue card', () => {
     const card = DEMO_CARDS.find((c) => c.id === 'revenue-over-time')!
     const result = demoQueryForCard(card, '7d', 'day')

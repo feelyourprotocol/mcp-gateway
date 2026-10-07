@@ -2,6 +2,8 @@ describe('MCP usage dashboard', () => {
   it('loads demo charts and responds to grain control', () => {
     cy.visit('/')
     cy.contains('MCP usage')
+    cy.get('[data-testid="liveness-indicator"]').should('be.visible')
+    cy.contains('MCP liveness')
     cy.contains('Tool usage')
     cy.contains('Clients')
     cy.get('[data-card-id="tool-calls"]').within(() => {

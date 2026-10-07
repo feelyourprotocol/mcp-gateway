@@ -35,6 +35,18 @@ export function demoQueryForCard(
   grain: MetricsGrain,
 ): CardQueryResult {
   switch (card.id) {
+    case 'mcp-liveness':
+      return daySeries(
+        card.id,
+        window,
+        grain,
+        {
+          up: [1438, 1439, 1437, 1440, 1436, 1438, 1439],
+          down: [2, 1, 3, 0, 4, 2, 1],
+        },
+        DEMO_NOW,
+        99.8,
+      )
     case 'distinct-fingerprints':
       return daySeries(card.id, window, grain, { value: [2, 3, 2, 4, 5, 3, 6] }, DEMO_NOW, 9)
     case 'sessions':
