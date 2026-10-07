@@ -16,6 +16,11 @@ export default tseslint.config(
         parser: tseslint.parser,
         extraFileExtensions: ['.vue'],
       },
+      globals: {
+        Event: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+      },
     },
     rules: {
       'vue/multi-word-component-names': 'off',

@@ -3,7 +3,12 @@ import { onMounted, ref } from 'vue'
 import { ChartBarSquareIcon } from '@heroicons/vue/24/outline'
 
 import { fetchCards } from '@/api/client'
+import CardHelpPopover from '@/components/CardHelpPopover.vue'
+import LivenessIndicator from '@/components/LivenessIndicator.vue'
 import MetricCard from '@/components/MetricCard.vue'
+
+const RANGE_HELP =
+  'Range: how far back the dashboard looks. 24h, 7d, and 30d change every headline. Hour, Day, and Week on a card only change how that chart is drawn.'
 import type { CardDefinition, MetricsWindow } from '@/types/metrics'
 
 const cards = ref<CardDefinition[]>([])
@@ -40,34 +45,40 @@ onMounted(async () => {
             <h1 class="text-lg font-semibold text-slate-900">MCP usage</h1>
           </div>
         </div>
-        <div class="flex gap-2" role="group" aria-label="Time window">
-          <button
-            v-for="w in windows"
-            :key="w.id"
-            type="button"
-            class="min-h-11 flex-1 rounded-lg px-4 text-sm font-medium sm:min-h-9 sm:flex-none"
-            :class="
-              window === w.id
-                ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
-                : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-            "
-            @click="window = w.id"
-          >
-            {{ w.label }}
-          </button>
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <LivenessIndicator />
+          <div class="flex items-center gap-1">
+            <CardHelpPopover label="About the range" align="end" :text="RANGE_HELP" />
+            <div class="flex flex-1 gap-2" role="group" aria-label="Range">
+              <button
+                v-for="w in windows"
+                :key="w.id"
+                type="button"
+                class="min-h-11 flex-1 rounded-lg px-4 text-sm font-medium sm:min-h-9 sm:flex-none"
+                :class="
+                  window === w.id
+                    ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white shadow-sm'
+                    : 'border border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                "
+                @click="window = w.id"
+              >
+                {{ w.label }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
     <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <p v-if="loadError" class="text-red-600">{{ loadError }}</p>
-      <div v-else class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div v-else class="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
         <MetricCard
           v-for="card in cards"
           :key="card.id"
           :card="card"
           :window="window"
-          class="lg:[&:nth-child(1)]:col-span-2"
+          :class="card.fullWidth ? 'lg:col-span-2' : undefined"
         />
       </div>
     </main>

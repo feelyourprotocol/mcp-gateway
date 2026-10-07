@@ -18,6 +18,12 @@ export function getMetricsWriter(): MetricsWriter {
 
 /** Test hook — reset singleton between cases. */
 export function resetMetricsWriterForTests(): void {
-  writerInstance?.close()
-  writerInstance = undefined
+  if (writerInstance) {
+    try {
+      writerInstance.close()
+    } catch {
+      // Writer may already be closed if a test shut down the DB handle.
+    }
+    writerInstance = undefined
+  }
 }

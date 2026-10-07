@@ -2,8 +2,15 @@ import express, { type Express } from 'express'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { type HealthPollerHandle, startHealthPoller } from '../healthPoller.js'
+import { deriveLivenessStatus, resolveLivenessOptions } from '../livenessStatus.js'
 import { getCardDefinition, METRICS_CARD_REGISTRY } from '../query/cardRegistry.js'
 import { purgeOldEvents, runCardQuery } from '../query/runCardQuery.js'
+import {
+  getLatestHealthSample,
+  runHealthLivenessQuery,
+  runHealthUptimeQuery,
+} from '../query/runHealthLivenessQuery.js'
 import type { MetricsGrain, MetricsWindow } from '../query/types.js'
 import { defaultGrainForWindow } from '../query/window.js'
 import { openMetricsDb } from './openMetricsDb.js'
@@ -11,6 +18,13 @@ import { openMetricsDb } from './openMetricsDb.js'
 export type CreateMetricsAppOptions = {
   dbPath: string
   uiDistPath?: string
+  /** When false, skips background /healthz polling (tests). Default true. */
+  startHealthPoller?: boolean
+}
+
+export type MetricsAppBundle = {
+  app: Express
+  healthPoller: HealthPollerHandle | null
 }
 
 const VALID_WINDOWS = new Set<MetricsWindow>(['24h', '7d', '30d'])
@@ -21,14 +35,21 @@ function defaultUiDistPath(): string {
   return path.resolve(here, '../../../metrics-ui/dist')
 }
 
-export function createMetricsApp(options: CreateMetricsAppOptions): Express {
+export function createMetricsApp(options: CreateMetricsAppOptions): MetricsAppBundle {
   const db = openMetricsDb(options.dbPath, false)
   purgeOldEvents(db)
 
   const app = express()
+  const livenessOptions = resolveLivenessOptions()
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', service: 'fyp-mcp-metrics' })
+  })
+
+  app.get('/api/liveness/current', (_req, res) => {
+    const latest = getLatestHealthSample(db)
+    const status = deriveLivenessStatus(latest, Date.now(), livenessOptions)
+    res.json(status)
   })
 
   app.get('/api/cards', (_req, res) => {
@@ -56,13 +77,17 @@ export function createMetricsApp(options: CreateMetricsAppOptions): Express {
     }
     const grain = grainParam as MetricsGrain
 
-    const result = runCardQuery(db, card, window, grain)
+    const result =
+      card.dataSource === 'health' && card.chart === 'line'
+        ? runHealthUptimeQuery(db, card, window, grain)
+        : card.dataSource === 'health'
+          ? runHealthLivenessQuery(db, card, window, grain)
+          : runCardQuery(db, card, window, grain)
     res.json(result)
   })
 
   const uiDist = options.uiDistPath ?? process.env.MCP_METRICS_UI_DIST ?? defaultUiDistPath()
   app.use(express.static(uiDist))
-  // Express 5 / path-to-regexp v8 — bare `*` is invalid; named wildcard for SPA fallback.
   app.get('/{*splat}', (_req, res) => {
     res.sendFile(path.join(uiDist, 'index.html'), (error) => {
       if (error) {
@@ -71,5 +96,8 @@ export function createMetricsApp(options: CreateMetricsAppOptions): Express {
     })
   })
 
-  return app
+  const shouldPoll = options.startHealthPoller !== false
+  const healthPoller = shouldPoll ? startHealthPoller({ db }) : null
+
+  return { app, healthPoller }
 }

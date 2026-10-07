@@ -22,6 +22,8 @@ export type ToolCallEvent = {
   settlement: MetricsSettlement
   amountMicroUsdc: number | null
   asset: string | null
+  forkId: string | null
+  eipsJson: string | null
 }
 
 export type MetricsEvent = SessionOpenEvent | ToolCallEvent

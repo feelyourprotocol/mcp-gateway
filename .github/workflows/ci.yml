@@ -90,3 +90,10 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Metrics UI
+        run: |
+          npm ci --prefix metrics-ui
+          npm run lf:ci --prefix metrics-ui
+          npm run typecheck --prefix metrics-ui
+          npm run test:unit:ci --prefix metrics-ui

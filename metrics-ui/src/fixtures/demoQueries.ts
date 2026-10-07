@@ -1,32 +1,13 @@
 import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
 
-const MS_DAY = 86_400_000
-
-function daySeries(
-  cardId: string,
-  window: MetricsWindow,
-  grain: MetricsGrain,
-  series: Record<string, number[]>,
-  now: number,
-): CardQueryResult {
-  const days = window === '24h' ? 1 : window === '7d' ? 7 : 14
-  const rows: CardQueryResult['series'] = []
-  for (let i = days - 1; i >= 0; i -= 1) {
-    const bucketStart = now - i * MS_DAY
-    for (const [name, values] of Object.entries(series)) {
-      const idx = days - 1 - i
-      rows.push({
-        bucketStart,
-        series: name,
-        value: values[idx] ?? 0,
-      })
-    }
-  }
-  const isEmpty = Object.keys(series).length === 0
-  return { cardId, window, grain, series: rows, isEmpty }
-}
-
-const DEMO_NOW = Date.UTC(2026, 2, 15, 12, 0, 0)
+import {
+  demoClients,
+  demoFingerprints,
+  demoLiveness,
+  demoSessions,
+  demoSplit,
+  demoTools,
+} from '@/fixtures/demoHistory'
 
 export function demoQueryForCard(
   card: CardDefinition,
@@ -34,65 +15,37 @@ export function demoQueryForCard(
   grain: MetricsGrain,
 ): CardQueryResult {
   switch (card.id) {
+    case 'mcp-liveness-timeline':
+      return demoLiveness(card.id, window, grain)
     case 'distinct-fingerprints':
-      return daySeries(
-        card.id,
-        window,
-        grain,
-        { total: [2, 3, 2, 4, 5, 3, 6, 4, 5, 7, 6, 8, 5, 9] },
-        DEMO_NOW,
-      )
+      return demoFingerprints(card.id, window, grain)
     case 'sessions':
-      return daySeries(
-        card.id,
-        window,
-        grain,
-        { total: [5, 8, 6, 9, 11, 7, 12, 10, 13, 15, 14, 16, 12, 18] },
-        DEMO_NOW,
-      )
+      return demoSessions(card.id, window, grain)
+    case 'clients':
+      return demoClients(card.id, window, grain)
     case 'tool-calls':
-      return daySeries(
-        card.id,
-        window,
-        grain,
-        {
-          run_bytecode: [12, 14, 10, 18, 20, 15, 22, 19, 21, 24, 23, 26, 20, 28],
-          run_transaction: [4, 5, 3, 6, 7, 5, 8, 6, 7, 9, 8, 10, 7, 11],
-          describe_capabilities: [8, 9, 7, 10, 11, 9, 12, 10, 11, 13, 12, 14, 11, 15],
-        },
-        DEMO_NOW,
-      )
+      return demoTools(card.id, window, grain)
+    case 'hardforks':
+      return demoSplit(card.id, window, grain, (hour) => hour.forks)
+    case 'eip-numbers':
+      return demoSplit(card.id, window, grain, (hour) => hour.eips)
     case 'tool-errors':
-      return daySeries(
-        card.id,
-        window,
-        grain,
-        {
-          run_bytecode: [1, 0, 2, 1, 0, 1, 2, 1, 0, 1, 2, 1, 0, 1],
-        },
-        DEMO_NOW,
-      )
+      return demoSplit(card.id, window, grain, (hour) => hour.errors)
     case 'settlement-mix':
-      return daySeries(
+      return demoSplit(
         card.id,
         window,
         grain,
-        {
-          unpaid: [20, 22, 18, 25, 28, 24, 30, 26, 28, 32, 30, 34, 28, 36],
-          paid: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        },
-        DEMO_NOW,
+        (hour) => ({
+          unpaid: Object.values(hour.tools).reduce((sum, value) => sum + value, 0),
+          paid: 0,
+        }),
+        ['unpaid', 'paid'],
       )
     case 'revenue-over-time':
     case 'revenue-by-tool':
-      return {
-        cardId: card.id,
-        window,
-        grain,
-        series: [],
-        isEmpty: true,
-      }
+      return { cardId: card.id, window, grain, series: [], summary: 0, isEmpty: true }
     default:
-      return { cardId: card.id, window, grain, series: [], isEmpty: true }
+      return { cardId: card.id, window, grain, series: [], summary: 0, isEmpty: true }
   }
 }

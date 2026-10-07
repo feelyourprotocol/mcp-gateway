@@ -2,9 +2,11 @@ export type MetricsWindow = '24h' | '7d' | '30d'
 
 export type MetricsGrain = 'hour' | 'day' | 'week'
 
-export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc'
+export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc' | 'uptime_percent'
 
-export type CardSplit = 'tool' | 'settlement' | 'outcome'
+export type CardDataSource = 'events' | 'health'
+
+export type CardSplit = 'tool' | 'settlement' | 'outcome' | 'client' | 'fork' | 'eip'
 
 export type CardFilter = {
   settlement?: 'paid' | 'unpaid'
@@ -15,13 +17,18 @@ export type CardFilter = {
 export type CardDefinition = {
   id: string
   title: string
+  dataSource?: CardDataSource
   measure: CardMeasure
   split?: CardSplit
   filter?: CardFilter
   grains: MetricsGrain[]
   defaultGrain: MetricsGrain
-  chart: 'line' | 'stacked-bar'
+  chart: 'line' | 'stacked-bar' | 'table'
   emptyHint?: string
+  helpText?: string
+  fillSeries?: string[]
+  hideGrainControls?: boolean
+  fullWidth?: boolean
 }
 
 export type QuerySeriesRow = {
@@ -35,5 +42,6 @@ export type CardQueryResult = {
   window: MetricsWindow
   grain: MetricsGrain
   series: QuerySeriesRow[]
+  summary: number
   isEmpty: boolean
 }
