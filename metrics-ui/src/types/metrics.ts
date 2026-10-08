@@ -4,11 +4,15 @@ export type MetricsGrain = 'hour' | 'day' | 'week'
 
 export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc' | 'uptime_percent'
 
+/** How the big headline number is derived from the query result. */
+export type CardHeadlineMeasure = 'total' | 'distinct_series'
+
 export type CardDefinition = {
   id: string
   title: string
   dataSource?: 'events' | 'health'
   measure: CardMeasure
+  headlineMeasure?: CardHeadlineMeasure
   split?: 'tool' | 'settlement' | 'outcome' | 'client' | 'fork' | 'eip'
   filter?: Record<string, string>
   grains: MetricsGrain[]
@@ -19,6 +23,7 @@ export type CardDefinition = {
   fillSeries?: string[]
   hideGrainControls?: boolean
   fullWidth?: boolean
+  showErrorCauses?: boolean
 }
 
 export type QuerySeriesRow = {

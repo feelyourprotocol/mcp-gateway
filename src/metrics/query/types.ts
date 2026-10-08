@@ -4,6 +4,8 @@ export type MetricsGrain = 'hour' | 'day' | 'week'
 
 export type CardMeasure = 'count' | 'count_distinct_actor' | 'sum_micro_usdc' | 'uptime_percent'
 
+export type CardHeadlineMeasure = 'total' | 'distinct_series'
+
 export type CardDataSource = 'events' | 'health'
 
 export type CardSplit = 'tool' | 'settlement' | 'outcome' | 'client' | 'fork' | 'eip'
@@ -19,6 +21,7 @@ export type CardDefinition = {
   title: string
   dataSource?: CardDataSource
   measure: CardMeasure
+  headlineMeasure?: CardHeadlineMeasure
   split?: CardSplit
   filter?: CardFilter
   grains: MetricsGrain[]

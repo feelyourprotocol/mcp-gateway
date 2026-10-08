@@ -53,7 +53,25 @@ function bucketStarts(result: CardQueryResult): number[] {
   return [...new Set(result.series.map((row) => row.bucketStart))].sort((a, b) => a - b)
 }
 
+/** Series names with a non-zero total in the window (split charts). */
+export function distinctActiveSeriesCount(result: CardQueryResult): number {
+  const totals = new Map<string, number>()
+  for (const row of result.series) {
+    totals.set(row.series, (totals.get(row.series) ?? 0) + row.value)
+  }
+  let count = 0
+  for (const [name, sum] of totals) {
+    if (sum > 0 && name !== SINGLE_SERIES) {
+      count += 1
+    }
+  }
+  return count
+}
+
 export function headlineValue(result: CardQueryResult, card: CardDefinition): string {
+  if (card.headlineMeasure === 'distinct_series') {
+    return String(distinctActiveSeriesCount(result))
+  }
   const value = result.summary
   if (card.measure === 'sum_micro_usdc') {
     return (value / 1_000_000).toFixed(2)

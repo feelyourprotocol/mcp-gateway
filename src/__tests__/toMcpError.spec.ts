@@ -45,17 +45,33 @@ describe('toMcpError', () => {
   })
 
   it('runToolHandler returns JSON result on success', async () => {
-    const result = await runToolHandler(async () => ({ value: 42 }))
+    const { result, diagnostic } = await runToolHandler(async () => ({ value: 42 }))
     expect(result.isError).not.toBe(true)
+    expect(diagnostic).toBeUndefined()
     expect(JSON.parse(extractTextContent(result))).toEqual({ value: 42 })
   })
 
   it('runToolHandler catches EngineError into MCP isError', async () => {
-    const result = await runToolHandler(async () => {
-      throw new EngineError('Unsupported base hardfork: bogus', 'unsupported_hardfork')
+    const { result, diagnostic } = await runToolHandler(async () => {
+      throw new EngineError('Unsupported base hardfork: bogus', 'unsupported_hardfork', {
+        field: 'fork.baseHardfork',
+      })
     })
 
     expect(result.isError).toBe(true)
     expect(extractTextContent(result)).toMatch(/unsupported_hardfork/i)
+    expect(diagnostic?.code).toBe('unsupported_hardfork')
+    expect(diagnostic?.field).toBe('fork.baseHardfork')
+  })
+
+  it('runToolHandler flags unexpected engine results', async () => {
+    const { result, diagnostic } = await runToolHandler(async () => ({
+      success: false,
+      error: 'boom',
+      errorCode: 'unexpected' as const,
+    }))
+    expect(result.isError).not.toBe(true)
+    expect(diagnostic?.code).toBe('unexpected')
+    expect(diagnostic?.message).toBe('boom')
   })
 })

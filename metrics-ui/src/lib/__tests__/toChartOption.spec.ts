@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import { DEMO_CARDS } from '@/fixtures/demoCatalog'
 import { demoQueryForCard } from '@/fixtures/demoQueries'
-import { axisTooltipTotal, headlineValue, toChartOption } from '@/lib/toChartOption'
+import {
+  axisTooltipTotal,
+  distinctActiveSeriesCount,
+  headlineValue,
+  toChartOption,
+} from '@/lib/toChartOption'
 
 describe('toChartOption', () => {
   it('builds series for each tool name including artifact tools', () => {
@@ -22,6 +27,14 @@ describe('toChartOption', () => {
     expect(legends.flatMap((row) => row.data ?? []).sort()).toEqual(names)
     expect(legends.length).toBeGreaterThan(1)
     expect(legends.every((row) => (row.data ?? []).length <= 2)).toBe(true)
+  })
+
+  it('uses distinct active series for tools section headlines', () => {
+    const card = DEMO_CARDS.find((c) => c.id === 'tool-calls')!
+    const result = demoQueryForCard(card, '7d', 'day')
+    expect(card.headlineMeasure).toBe('distinct_series')
+    expect(headlineValue(result, card)).toBe(String(distinctActiveSeriesCount(result)))
+    expect(distinctActiveSeriesCount(result)).toBeLessThan(result.summary)
   })
 
   it('uses summary for headline not bucket sum', () => {

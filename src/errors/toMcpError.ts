@@ -2,6 +2,17 @@ import { ZodError } from 'zod'
 import { EngineError } from '@feelyourprotocol/mcp-execution-engine'
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js'
 
+import {
+  buildDiagnosticFromError,
+  diagnosticFromUnexpectedEngineResult,
+  type ToolErrorDiagnostic,
+} from '../metrics/errorDiagnostic.js'
+
+export type ToolHandlerOutcome = {
+  result: CallToolResult
+  diagnostic?: ToolErrorDiagnostic
+}
+
 export function jsonToolResult(data: unknown): CallToolResult {
   return {
     content: [
@@ -42,11 +53,18 @@ export function toMcpToolError(error: unknown): CallToolResult {
   return toolError('Unknown error')
 }
 
-export async function runToolHandler<T>(handler: () => Promise<T>): Promise<CallToolResult> {
+export async function runToolHandler<T>(handler: () => Promise<T>): Promise<ToolHandlerOutcome> {
   try {
     const result = await handler()
-    return jsonToolResult(result)
+    const unexpected = diagnosticFromUnexpectedEngineResult(result)
+    return {
+      result: jsonToolResult(result),
+      ...(unexpected !== null ? { diagnostic: unexpected } : {}),
+    }
   } catch (error) {
-    return toMcpToolError(error)
+    return {
+      result: toMcpToolError(error),
+      diagnostic: buildDiagnosticFromError(error),
+    }
   }
 }

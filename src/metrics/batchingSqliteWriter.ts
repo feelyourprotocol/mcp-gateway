@@ -34,9 +34,9 @@ export function createBatchingSqliteWriter(options: BatchingSqliteWriterOptions)
     INSERT INTO events (
       ts, kind, actor_key, client_name, client_version,
       tool, outcome, duration_ms, settlement, amount_micro_usdc, asset,
-      fork_id, eips_json
+      fork_id, eips_json, error_json
     )
-    VALUES (?, 'tool_call', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, 'tool_call', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `)
 
   const queue: MetricsEvent[] = []
@@ -66,6 +66,7 @@ export function createBatchingSqliteWriter(options: BatchingSqliteWriterOptions)
             event.asset,
             event.forkId,
             event.eipsJson,
+            event.errorJson ?? null,
           )
         }
       }

@@ -8,7 +8,7 @@ export const SERVER_INSTRUCTIONS = [
   'When the user names a fork (amsterdam, osaka, glamsterdam, fusaka, shapella, …), run one simulation on that fork only.',
   'Do not also run the predecessor fork unless they ask to compare, contrast, or see before/after.',
   'Call describe_capabilities first: namedForks is the Berlin→Glamsterdam lineage (order, predecessorId,',
-  'activatedEips, related runnable twins, tools); queryShapes maps catalog shape ids to MCP tool names;',
+  'activatedEips, related runnable twins, tools, mascotEmoji when assigned); queryShapes maps catalog shape ids to MCP tool names;',
   'eipIntroductions says when each EIP appeared (coverage is twin, supported, listed, unshown, consensus, networking, or informational; observableTools are MCP names).',
   'coverage supported means the hardfork already applies that EIP: omit it from eips and use run_bytecode or run_transaction.',
   'coverage unshown means an execution-layer EIP this lab does not demonstrate: do not put it in eips, and a generic fork run does not stand in for it.',
@@ -34,4 +34,5 @@ export const SERVER_INSTRUCTIONS = [
   'When you report results to the user, use plain language — paid gas, call gas (bytecode frame),',
   'regular-gas breakdown, state gas, block header total, prefunded storage — not JSON field names',
   '(gasUsed, txRegularGas, accounts[], gasUsedScope) unless they ask for raw fields or a paste of the tool JSON.',
+  'Run results include provenance.forkLabel and forkMascotEmoji when set — prefer those (with mascot) when naming the fork in replies.',
 ].join(' ')

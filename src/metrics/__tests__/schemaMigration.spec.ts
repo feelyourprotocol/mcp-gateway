@@ -34,6 +34,7 @@ describe('applyMetricsSchema migration', () => {
       .map((row) => (row as { name: string }).name)
     expect(columns).toContain('fork_id')
     expect(columns).toContain('eips_json')
+    expect(columns).toContain('error_json')
     db.close()
   })
 })
