@@ -12,4 +12,4 @@ Do **not** use the global HEREDOC-body / parallel-git commit playbook in this re
 3. Commits, pushes, pulls, and `gh pr create` are **one shell at a time** (Touch ID). Never parallel signed git, even across FYP siblings.
 4. Commit message: **one line**, ~7–10 words, no `feat:` / `fix:`, **no body**.
 
-Full habits (when, scope, CI, PRs): sibling [`../website/.cursor/rules/git.mdc`](../website/.cursor/rules/git.mdc) (canonical). Do not fork a second long copy here.
+Full habits (when, scope, CI, PRs): sibling [`../website/.cursor/rules/git.mdc`](../website/.cursor/rules/git.mdc) (canonical). **Unicorn merge 🦄:** [`../website/.cursor/skills/unicorn-merge/SKILL.md`](../website/.cursor/skills/unicorn-merge/SKILL.md) — explicit trigger only; not round-trip close. Do not fork a second long copy here.
