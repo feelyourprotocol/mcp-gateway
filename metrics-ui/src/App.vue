@@ -8,7 +8,7 @@ import CardHelpPopover from '@/components/CardHelpPopover.vue'
 import DashboardNav from '@/components/DashboardNav.vue'
 import ErrorHealthIndicator from '@/components/ErrorHealthIndicator.vue'
 import LivenessIndicator from '@/components/LivenessIndicator.vue'
-import { loadPinnedCardIds, savePinnedCardIds } from '@/lib/pinnedCards'
+import { loadPinnedCardIds, reorderVisiblePinnedIds, savePinnedCardIds } from '@/lib/pinnedCards'
 import type { CardDefinition, MetricsWindow } from '@/types/metrics'
 
 const RANGE_HELP =
@@ -34,10 +34,21 @@ function togglePin(cardId: string): void {
   savePinnedCardIds(pinnedCardIds.value)
 }
 
+function reorderPinned(fromIndex: number, toIndex: number): void {
+  const catalog = new Set(cards.value.map((card) => card.id))
+  const next = reorderVisiblePinnedIds(pinnedCardIds.value, catalog, fromIndex, toIndex)
+  if (next === null) {
+    return
+  }
+  pinnedCardIds.value = next
+  savePinnedCardIds(next)
+}
+
 provide('dashboardCards', cards)
 provide('metricsWindow', window)
 provide('pinnedCardIds', pinnedCardIds)
 provide('togglePin', togglePin)
+provide('reorderPinned', reorderPinned)
 
 onMounted(async () => {
   try {

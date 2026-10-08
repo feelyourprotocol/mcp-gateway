@@ -178,7 +178,9 @@ watch(
           <div>
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
               By error code
-              <span v-if="hasActiveFilters" class="font-normal normal-case text-slate-400">(filtered)</span>
+              <span v-if="hasActiveFilters" class="font-normal normal-case text-slate-400"
+                >(filtered)</span
+              >
             </p>
             <ul class="space-y-1.5">
               <li
@@ -270,7 +272,7 @@ watch(
         <label
           class="ml-auto flex min-h-9 cursor-pointer items-center gap-2 text-xs text-slate-600"
         >
-          <input v-model="groupByTool" type="checkbox" class="size-4 rounded border-slate-300">
+          <input v-model="groupByTool" type="checkbox" class="size-4 rounded border-slate-300" />
           Group by tool
         </label>
       </div>

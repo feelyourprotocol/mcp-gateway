@@ -7,6 +7,7 @@ import type { CardDefinition, MetricsWindow } from '@/types/metrics'
 const cards = inject<Ref<CardDefinition[]>>('dashboardCards')!
 const window = inject<Ref<MetricsWindow>>('metricsWindow')!
 const pinnedIds = inject<Ref<string[]>>('pinnedCardIds')!
+const reorderPinned = inject<(from: number, to: number) => void>('reorderPinned')!
 
 const pinnedCards = computed(() => {
   const byId = new Map(cards.value.map((card) => [card.id, card]))
@@ -17,15 +18,13 @@ const pinnedCards = computed(() => {
 </script>
 
 <template>
-  <div class="space-y-4">
-    <p class="text-sm text-slate-600">
-      Pinned widgets for a quick read. Use the pin on any card in Usage, Tools, Errors, or Payment
-      to add or remove items here.
-    </p>
+  <div>
     <MetricCardGrid
       :cards="pinnedCards"
       :window="window"
+      reorderable
       empty-message="No pinned widgets yet — open a section and pin the cards you use most."
+      @reorder="reorderPinned"
     />
   </div>
 </template>

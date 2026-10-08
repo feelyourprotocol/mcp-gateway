@@ -61,8 +61,9 @@ export const DEMO_CARDS: CardDefinition[] = [
     id: 'tool-calls',
     title: 'Tool usage',
     helpText:
-      'Completed tool calls on the hosted server, split by MCP tool. All six tools are listed even when count is zero. The headline is total calls in the window.',
+      'Completed tool calls on the hosted server, split by MCP tool. All six tools are listed even when count is zero. The headline counts distinct tools with at least one call in the window.',
     measure: 'count',
+    headlineMeasure: 'distinct_series',
     split: 'tool',
     filter: { kind: 'tool_call' },
     grains: ['hour', 'day', 'week'],
@@ -74,8 +75,9 @@ export const DEMO_CARDS: CardDefinition[] = [
     id: 'hardforks',
     title: 'Hardforks',
     helpText:
-      'fork.baseHardfork from tool input on run, transaction, block, and artifact tools. omitted means the caller left fork out (engine default preview fork at runtime). describe_capabilities is excluded.',
+      'fork.baseHardfork from tool input on run, transaction, block, and artifact tools. omitted means the caller left fork out (engine default preview fork at runtime). describe_capabilities is excluded. The headline counts distinct hardforks with at least one call.',
     measure: 'count',
+    headlineMeasure: 'distinct_series',
     split: 'fork',
     filter: { kind: 'tool_call' },
     grains: ['hour', 'day', 'week'],
@@ -86,8 +88,9 @@ export const DEMO_CARDS: CardDefinition[] = [
     id: 'eip-numbers',
     title: 'EIP numbers',
     helpText:
-      'Only explicit fork.eips lists on tool calls — each number in a call is counted. Generic fork runs without an EIP list do not appear here.',
+      'Only explicit fork.eips lists on tool calls — each number in a call is counted. Generic fork runs without an EIP list do not appear here. The headline counts distinct EIP numbers that appeared at least once.',
     measure: 'count',
+    headlineMeasure: 'distinct_series',
     split: 'eip',
     filter: { kind: 'tool_call' },
     grains: ['hour', 'day', 'week'],

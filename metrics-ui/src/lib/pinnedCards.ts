@@ -28,3 +28,37 @@ export function savePinnedCardIds(ids: string[]): void {
   }
   localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
 }
+
+/** Reorder within a list; returns null when indices are out of range. */
+export function reorderPinnedCardIds(
+  ids: readonly string[],
+  fromIndex: number,
+  toIndex: number,
+): string[] | null {
+  if (fromIndex === toIndex) {
+    return [...ids]
+  }
+  if (fromIndex < 0 || toIndex < 0 || fromIndex >= ids.length || toIndex >= ids.length) {
+    return null
+  }
+  const next = [...ids]
+  const [item] = next.splice(fromIndex, 1)
+  next.splice(toIndex, 0, item!)
+  return next
+}
+
+/** Reorder home pins among catalog-visible ids; unknown ids stay at the tail. */
+export function reorderVisiblePinnedIds(
+  pinnedIds: readonly string[],
+  catalogIds: ReadonlySet<string>,
+  fromIndex: number,
+  toIndex: number,
+): string[] | null {
+  const visible = pinnedIds.filter((id) => catalogIds.has(id))
+  const hidden = pinnedIds.filter((id) => !catalogIds.has(id))
+  const reordered = reorderPinnedCardIds(visible, fromIndex, toIndex)
+  if (reordered === null) {
+    return null
+  }
+  return [...reordered, ...hidden]
+}
