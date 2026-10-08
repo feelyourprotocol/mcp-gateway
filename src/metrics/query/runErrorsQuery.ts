@@ -16,6 +16,9 @@ export type ErrorEventRow = {
 export type ErrorsQueryResult = {
   window: MetricsWindow
   errors: ErrorEventRow[]
+  totalInWindow: number
+  limit: number
+  truncated: boolean
 }
 
 function parseEips(json: string | null): number[] {
@@ -69,6 +72,13 @@ export function runErrorsQuery(
   limit = 100,
 ): ErrorsQueryResult {
   const start = nowMs - windowToMs(window)
+  const countRow = db
+    .prepare(
+      `SELECT COUNT(*) AS c FROM events
+       WHERE kind = 'tool_call' AND outcome = 'error' AND ts >= ? AND ts < ?`,
+    )
+    .get(start, nowMs) as { c: number }
+
   const rows = db
     .prepare(
       `SELECT id, ts, tool, fork_id, eips_json, error_json
@@ -86,8 +96,12 @@ export function runErrorsQuery(
     error_json: string | null
   }[]
 
+  const totalInWindow = countRow.c
   return {
     window,
+    limit,
+    totalInWindow,
+    truncated: totalInWindow > rows.length,
     errors: rows.map((row) => ({
       id: row.id,
       ts: row.ts,

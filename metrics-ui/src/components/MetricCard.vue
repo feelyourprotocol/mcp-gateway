@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, inject, ref, watch, type Ref } from 'vue'
+import { StarIcon } from '@heroicons/vue/24/outline'
+import { StarIcon as StarIconSolid } from '@heroicons/vue/24/solid'
 
 import { fetchCardQuery } from '@/api/client'
 import CardHelpPopover from '@/components/CardHelpPopover.vue'
@@ -20,7 +22,17 @@ const GROUP_HELP =
 const props = defineProps<{
   card: CardDefinition
   window: MetricsWindow
+  showPin?: boolean
 }>()
+
+const pinnedCardIds = inject<Ref<string[]> | null>('pinnedCardIds', null)
+const togglePin = inject<((cardId: string) => void) | null>('togglePin', null)
+
+const isPinned = computed(() => pinnedCardIds?.value.includes(props.card.id) ?? false)
+
+function onTogglePin(): void {
+  togglePin?.(props.card.id)
+}
 
 const grain = ref<MetricsGrain>(grainForWindow(props.card, props.window))
 const clientGroup = ref<ClientGroup>('version')
@@ -86,6 +98,17 @@ watch(
         <div class="flex flex-wrap items-center gap-1">
           <h2 class="text-sm font-semibold text-slate-800">{{ card.title }}</h2>
           <CardHelpPopover v-if="card.helpText" :text="card.helpText" />
+          <button
+            v-if="showPin && togglePin"
+            type="button"
+            class="ml-1 min-h-9 rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-violet-700 sm:min-h-8"
+            :aria-pressed="isPinned"
+            :aria-label="isPinned ? 'Unpin from home' : 'Pin to home'"
+            @click="onTogglePin"
+          >
+            <StarIconSolid v-if="isPinned" class="size-4 text-amber-500" aria-hidden="true" />
+            <StarIcon v-else class="size-4" aria-hidden="true" />
+          </button>
         </div>
         <p class="font-mono text-2xl font-bold tabular-nums text-slate-900">
           {{ headline

@@ -19,4 +19,7 @@ export type ErrorEventRow = {
 export type ErrorsQueryResult = {
   window: MetricsWindow
   errors: ErrorEventRow[]
+  totalInWindow: number
+  limit: number
+  truncated: boolean
 }

@@ -34,6 +34,8 @@ describe('runErrorsQuery', () => {
 
     const result = runErrorsQuery(db, '24h', now)
     expect(result.errors).toHaveLength(1)
+    expect(result.totalInWindow).toBe(1)
+    expect(result.truncated).toBe(false)
     expect(result.errors[0]?.diagnostic?.code).toBe('invalid_gas_limit')
     db.close()
   })
