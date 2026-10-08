@@ -24,6 +24,8 @@ export type ToolCallEvent = {
   asset: string | null
   forkId: string | null
   eipsJson: string | null
+  /** Sanitized ToolErrorDiagnostic JSON when outcome is error. */
+  errorJson?: string | null
 }
 
 export type MetricsEvent = SessionOpenEvent | ToolCallEvent

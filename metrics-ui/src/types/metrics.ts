@@ -19,6 +19,7 @@ export type CardDefinition = {
   fillSeries?: string[]
   hideGrainControls?: boolean
   fullWidth?: boolean
+  showErrorCauses?: boolean
 }
 
 export type QuerySeriesRow = {

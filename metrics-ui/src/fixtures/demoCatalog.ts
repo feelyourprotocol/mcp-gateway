@@ -100,13 +100,14 @@ export const DEMO_CARDS: CardDefinition[] = [
     id: 'tool-errors',
     title: 'Tool errors',
     helpText:
-      'Tool calls that returned an error (invalid input or engine failure), split by tool name.',
+      'Rejected tool calls (MCP isError or engine unexpected) and their sanitized causes below the chart. EVM reverts on otherwise valid input are not listed here.',
     measure: 'count',
     split: 'tool',
     filter: { kind: 'tool_call', outcome: 'error' },
     grains: ['hour', 'day', 'week'],
     defaultGrain: 'day',
     chart: 'stacked-bar',
+    fullWidth: true,
   },
   {
     id: 'settlement-mix',

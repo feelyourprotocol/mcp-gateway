@@ -4,6 +4,7 @@ import { computed, ref, watch } from 'vue'
 import { fetchCardQuery } from '@/api/client'
 import CardHelpPopover from '@/components/CardHelpPopover.vue'
 import MetricChart from '@/components/MetricChart.vue'
+import ToolErrorList from '@/components/ToolErrorList.vue'
 import MetricTable from '@/components/MetricTable.vue'
 import type { ClientGroup } from '@/lib/clientTable'
 import { clientTableRows } from '@/lib/clientTable'
@@ -146,5 +147,6 @@ watch(
       :group="card.id === 'clients' ? clientGroup : 'version'"
     />
     <MetricChart v-else-if="result" :card="card" :result="result" />
+    <ToolErrorList v-if="card.id === 'tool-errors' && !loading && !error" :window="window" />
   </article>
 </template>

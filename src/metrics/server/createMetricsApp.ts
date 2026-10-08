@@ -6,6 +6,7 @@ import { type HealthPollerHandle, startHealthPoller } from '../healthPoller.js'
 import { deriveLivenessStatus, resolveLivenessOptions } from '../livenessStatus.js'
 import { getCardDefinition, METRICS_CARD_REGISTRY } from '../query/cardRegistry.js'
 import { purgeOldEvents, runCardQuery } from '../query/runCardQuery.js'
+import { runErrorsQuery } from '../query/runErrorsQuery.js'
 import {
   getLatestHealthSample,
   runHealthLivenessQuery,
@@ -54,6 +55,16 @@ export function createMetricsApp(options: CreateMetricsAppOptions): MetricsAppBu
 
   app.get('/api/cards', (_req, res) => {
     res.json({ cards: METRICS_CARD_REGISTRY })
+  })
+
+  app.get('/api/errors', (req, res) => {
+    const windowParam = (req.query.window as string | undefined) ?? '7d'
+    if (!VALID_WINDOWS.has(windowParam as MetricsWindow)) {
+      res.status(400).json({ error: 'invalid window' })
+      return
+    }
+    const window = windowParam as MetricsWindow
+    res.json(runErrorsQuery(db, window))
   })
 
   app.get('/api/cards/:cardId/query', (req, res) => {

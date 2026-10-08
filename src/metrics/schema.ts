@@ -58,6 +58,7 @@ const COLUMN_MIGRATIONS: { name: string; ddl: string }[] = [
   { name: 'asset', ddl: 'TEXT' },
   { name: 'fork_id', ddl: 'TEXT' },
   { name: 'eips_json', ddl: 'TEXT' },
+  { name: 'error_json', ddl: 'TEXT' },
 ]
 
 function ensureEventColumns(db: DatabaseSync): void {

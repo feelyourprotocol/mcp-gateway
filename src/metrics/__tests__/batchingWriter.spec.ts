@@ -62,4 +62,35 @@ describe('batchingSqliteWriter', () => {
     expect(forkRow.eips_json).toBe('[7928]')
     db.close()
   })
+
+  it('persists error_json on failed tool calls', () => {
+    const dbPath = path.join(os.tmpdir(), `fyp-metrics-err-${Date.now()}.sqlite`)
+    tempPaths.push(dbPath)
+    const writer = createBatchingSqliteWriter({ dbPath, flushIntervalMs: 60_000 })
+    writer.enqueue({
+      kind: 'tool_call',
+      ts: 1_700_000_200_000,
+      actorKey: 'abc',
+      clientName: 'cursor',
+      clientVersion: '1',
+      tool: 'run_bytecode',
+      outcome: 'error',
+      durationMs: 3,
+      settlement: 'unpaid',
+      amountMicroUsdc: null,
+      asset: null,
+      forkId: 'glamsterdam',
+      eipsJson: null,
+      errorJson: JSON.stringify({ code: 'invalid_input', message: 'Provide bytecode' }),
+    })
+    writer.flush()
+    writer.close()
+
+    const db = new DatabaseSync(dbPath, { readOnly: true })
+    const row = db.prepare('SELECT error_json FROM events WHERE outcome = ?').get('error') as {
+      error_json: string
+    }
+    expect(JSON.parse(row.error_json).code).toBe('invalid_input')
+    db.close()
+  })
 })

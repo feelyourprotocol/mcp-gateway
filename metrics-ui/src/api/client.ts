@@ -2,6 +2,8 @@ import { resolveApiUrl, useLiveMetricsApi } from '@/api/resolveApiUrl'
 import { DEMO_CARDS } from '@/fixtures/demoCatalog'
 import { DEMO_LIVENESS } from '@/fixtures/demoLiveness'
 import { demoQueryForCard } from '@/fixtures/demoQueries'
+import { demoErrorsForWindow } from '@/fixtures/demoErrors'
+import type { ErrorsQueryResult } from '@/types/errors'
 import type { CardDefinition, CardQueryResult, MetricsGrain, MetricsWindow } from '@/types/metrics'
 import type { LivenessStatus } from '@/types/liveness'
 
@@ -35,6 +37,18 @@ export async function fetchCardQuery(
     throw new Error('query failed')
   }
   return (await res.json()) as CardQueryResult
+}
+
+export async function fetchErrors(window: MetricsWindow): Promise<ErrorsQueryResult> {
+  if (!useLiveMetricsApi()) {
+    return demoErrorsForWindow(window)
+  }
+  const params = new URLSearchParams({ window })
+  const res = await fetch(resolveApiUrl(`/api/errors?${params}`))
+  if (!res.ok) {
+    throw new Error('errors query failed')
+  }
+  return (await res.json()) as ErrorsQueryResult
 }
 
 export async function fetchLivenessCurrent(): Promise<LivenessStatus> {

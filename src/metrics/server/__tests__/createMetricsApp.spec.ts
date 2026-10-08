@@ -47,4 +47,23 @@ describe('createMetricsApp', () => {
     expect(res.status).toBe(200)
     expect(res.body.state).toBe('up')
   })
+
+  it('lists tool errors via GET /api/errors', async () => {
+    dbDir = mkdtempSync(join(tmpdir(), 'fyp-metrics-err-'))
+    dbPath = join(dbDir, 'events.sqlite')
+    const db = openMetricsDb(dbPath)
+    db.prepare(
+      `INSERT INTO events (ts, kind, tool, outcome, error_json) VALUES (?, 'tool_call', 'run_bytecode', 'error', ?)`,
+    ).run(
+      Date.now() - 500,
+      JSON.stringify({ code: 'empty_bytecode', message: 'Bytecode must not be empty' }),
+    )
+    db.close()
+
+    const { app } = createMetricsApp({ dbPath, startHealthPoller: false })
+    const res = await request(app).get('/api/errors?window=24h')
+    expect(res.status).toBe(200)
+    expect(res.body.errors).toHaveLength(1)
+    expect(res.body.errors[0].diagnostic.code).toBe('empty_bytecode')
+  })
 })
